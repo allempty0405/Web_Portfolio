@@ -1,93 +1,132 @@
-<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f9f8"><title>필그램 · 인터랙티브 프로토타입</title>
-<style>
-:root{--green:#269b59;--pale:#eff9f2;--ink:#232829;--muted:#727b7a;--line:#e4e9e6}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink)}
-body{background:#eaf0ed}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}
-.shell{min-height:100dvh;display:grid;grid-template-columns:minmax(0,210px) 360px minmax(0,210px);align-items:center;justify-content:center;gap:24px;padding:24px}
-.outside{display:flex;flex-direction:column;gap:12px}.outside h1{font-size:24px;margin:0;line-height:1.36}.outside p,.minor{font-size:12px;line-height:1.6;color:var(--muted)}.outside small{font-size:11px;color:#51725f;letter-spacing:.04em}
-.navbtn{border:1px solid #b6cabe;background:white;border-radius:10px;padding:14px;text-align:left;font-weight:700}
-.device{width:360px;height:min(715px,calc(100dvh - 28px));min-height:510px;border-radius:25px;border:1px solid #d7dfd9;overflow:hidden;display:flex;flex-direction:column;background:white;position:relative;box-shadow:0 14px 60px #24403224}
-.bar{height:56px;flex-shrink:0;border-bottom:1px solid #f1f1f1;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#fff}
-.bar strong{font-size:16px}.back{border:0;background:none;font-size:26px;width:32px;line-height:1}
-.content{flex:1;overflow:auto;padding:26px 20px;scrollbar-width:thin}.content.chat{background:#f8f9fa;padding-bottom:120px}
-.footer{flex-shrink:0;background:white;padding:14px 20px 24px;box-shadow:0 -4px 15px #00000007;z-index:2}
-.primary{width:100%;border:0;color:white;border-radius:9px;background:var(--green);min-height:52px;font-weight:700;font-size:16px;padding:12px}
-.secondary{width:100%;border:1px solid #d6ddd8;background:#fff;border-radius:8px;padding:12px;font-weight:700}
-h2{font-size:23px;line-height:1.42;margin:0 0 10px;letter-spacing:-.035em}h3{font-size:17px;margin:0 0 13px}p{line-height:1.55}
-.sub{font-size:14px;color:var(--muted);line-height:1.65}.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:28px}
-.choice{border:1px solid var(--line);background:#f8f9fa;border-radius:10px;min-height:84px;font-size:15px}
-.choice.selected,.chip.selected,.day.selected,.slot.selected{background:var(--pale);color:#16783f;border-color:var(--green);font-weight:800}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}.chip{background:white;border:1px solid var(--line);border-radius:8px;padding:12px}
-.field{width:100%;padding:14px;border:1px solid #cdd8d1;border-radius:9px;font-size:16px;margin-top:24px}
-.pack{margin:32px auto;width:185px;border:1px solid #d9e9da;border-radius:12px;padding:20px;background:#f5faf6;box-shadow:0 8px 25px #123d190d}.pack b{color:var(--green)}
-.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#d8efe1;color:#17864b;font-weight:800;font-size:13px;margin-bottom:9px}
-.bubble{border-radius:4px 16px 16px 16px;background:white;padding:16px;margin:0 0 12px;font-size:14px;line-height:1.55;box-shadow:0 1px 6px #00000009}
-.resultbtn{width:100%;padding:11px;border:1px solid #a0cfb0;background:#fff;border-radius:8px;font-weight:750;color:#188147;margin:9px 0}
-.summary{display:flex;justify-content:space-around;margin:15px 0}.summary span{font-size:13px;font-weight:750}
-.danger{color:#ea4c56}.warn{color:#cc7b19}.ok{color:#218b50}
-.healthrow{border-bottom:1px solid #e9eeeb;padding:11px 0;font-size:13px;display:flex;justify-content:space-between;gap:8px}.healthrow:last-child{border:0}
-.healthrow small{display:block;color:#858e88;margin-top:5px}.ingredients{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0}
-.ingredient{background:#f6f8f7;padding:11px 8px;border-radius:8px;font-size:12px}.ingredient.warnbg{background:#fff5e9}
-.stats{background:var(--pale);border-radius:10px;padding:13px}.statsgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.statsgrid span{border-radius:8px;text-align:center;background:#fff;padding:12px 6px;font-size:12px}.statsgrid b{display:block;font-size:20px;color:var(--green);margin-top:6px}
-.sheetmask{position:absolute;inset:56px 0 0;background:#0007;z-index:5;display:flex;align-items:flex-end}
-.sheet{background:#fff;border-radius:18px 18px 0 0;width:100%;height:93%;display:flex;flex-direction:column;overflow:hidden}
-.sheethead{height:54px;flex-shrink:0;padding:13px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;font-weight:750}
-.sheethead button{background:transparent;border:0;font-size:21px}.sheetbody{overflow:auto;padding:20px}
-.sheetbody h3{margin-top:23px;border-top:7px solid #f5f6f6;padding-top:20px}
-.calendar{display:flex;gap:8px;margin:22px 0 10px}.day{flex:1;background:white;border:1px solid var(--line);border-radius:9px;padding:12px 4px}
-.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 20px}.slot{background:#fff;border:1px solid var(--line);padding:13px 0;border-radius:8px}
-.done{text-align:center;margin:50px 0 25px}.done b{display:block;font-size:52px;color:var(--green)}
-.review{padding:22px;background:#f7f8f8;text-align:center;border-radius:14px;margin:28px 0}.review strong{font-size:22px}
-button:focus-visible,input:focus-visible{outline:3px solid #a0d9b4;outline-offset:2px}
-@media(max-width:800px){.shell{display:flex;flex-direction:column;gap:12px;padding:12px}.outside.left{display:none}.device{order:1;width:min(360px,100%);height:min(715px,calc(100dvh - 155px));min-height:430px}.outside.right{order:2;display:grid;grid-template-columns:1fr 1fr;width:min(360px,100%)}.outside.right small{grid-column:span 2}}
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>추천결과지 프로토타입</title><style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:#222}body{background:#f5f6f7}
+.stage{min-height:100dvh;display:flex;align-items:center;justify-content:center;gap:28px;padding:12px}
+.outside{width:180px;flex:0 0 180px;display:flex;flex-direction:column;gap:12px}
+.outside h1{font-size:23px;line-height:1.4;letter-spacing:-.05em;margin:0 0 18px}
+.outside button{min-height:46px;border:1px solid #d6ddd8;border-radius:8px;background:#fff;text-align:left;padding:10px 14px;font-size:14px;cursor:pointer;font-weight:650}
+.outside button:disabled{opacity:.4;cursor:not-allowed}
+.phone{width:360px;height:715px;flex:0 0 360px;position:relative;overflow:hidden;border-radius:32px;background:#f8f9fa;box-shadow:0 12px 42px #203a2520}
+.shot{width:360px;height:715px;display:block;pointer-events:none;user-select:none}
+.hit{position:absolute;z-index:4;border:0;background:transparent;font-size:0;color:transparent;cursor:pointer;padding:0}
+.hit:focus-visible,.outside button:focus-visible,.name-input:focus-visible{outline:3px solid #2aad5c;outline-offset:2px}
+.paint{position:absolute;z-index:3}
+.tile{position:absolute;z-index:3;width:156px;height:98px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500}
+.tile img{width:40px;height:40px;object-fit:contain}.selected{background:#f1fbf5!important;border:1px solid #2aad5c!important;color:#222!important}.plain{background:#f8f9fa!important;border:1px solid transparent!important;color:#757575!important}
+.chip{position:absolute;z-index:3;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:16px;font-weight:500;white-space:nowrap}
+.name-input{position:absolute;z-index:5;top:208px;left:36px;width:285px;height:24px;border:0;outline:0;background:white;color:#222;font-size:16px;font-family:inherit;letter-spacing:-.03em}
+.name-preview{position:absolute;z-index:4;top:328px;left:106px;min-width:90px;max-width:120px;height:21px;background:white;white-space:nowrap;overflow:hidden;font-size:14px}
+.booking-chip{position:absolute;z-index:3;display:flex;justify-content:center;align-items:center;background:#f8f9fa;color:#757575;border-radius:8px;font-size:14px;font-weight:500}
+.booking-chip.day{flex-direction:column}.booking-chip small{font-size:12px}
+.booking-cta{position:absolute;z-index:3;top:619px;left:20px;width:320px;height:56px;display:flex;align-items:center;justify-content:center;background:#2aad5c;border-radius:8px;color:white;font-size:16px;font-weight:700}
+.booking-summary{position:absolute;z-index:3;top:321px;left:58px;width:246px;height:34px;background:white;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700}
+.scroll{position:absolute;top:56px;bottom:132px;width:360px;overflow-y:auto;background:#f8f9fa}
+.scroll img{width:360px;height:2156px;display:block;margin-top:-56px;user-select:none;pointer-events:none}
+.crop{position:absolute;left:0;width:360px;overflow:hidden;z-index:2;pointer-events:none}
+.crop img{width:360px;height:715px;position:absolute;left:0}
+.detail-scroll{position:absolute;top:0;left:0;width:360px;height:715px;overflow-y:auto;z-index:2;background:white}
+.detail-scroll img{width:360px;height:1692px;display:block}
+.close{position:absolute;z-index:5;top:9px;left:8px;width:42px;height:42px;cursor:pointer;border:0;background:transparent;color:transparent}
+@media(max-width:620px){.stage{gap:8px;padding:5px}.outside{width:92px;flex-basis:92px;gap:8px}.outside h1{font-size:15px;margin-bottom:10px}.outside button{text-align:center;padding:6px 4px;font-size:12px}.phone{zoom:min(1,calc((100vw - 112px)/360))}}
+@media(max-height:740px) and (min-width:621px){.phone{zoom:calc((100dvh - 24px)/715)}}
 </style></head><body>
-<div class="shell"><aside class="outside left"><small>PILLGRAM / PRODUCT PROTOTYPE</small><h1>추천결과에서<br>상담예약까지</h1><p>설문·팩 이름·채팅형 결과지·상담예약을 직접 체험하는 포트폴리오용 데모입니다.</p><p>예시 검진 데이터와 추천 성분을 사용하며 실제 예약·결제는 발생하지 않습니다.</p><button class="navbtn" data-action="reset">처음부터 다시 보기</button></aside>
-<main class="device" aria-label="필그램 모바일 프로토타입" id="app"></main>
-<nav class="outside right" aria-label="프로토타입 바깥 탐색"><small id="step">01 / 09</small><button class="navbtn" data-action="prev" id="prev">← 이전 화면</button><button class="navbtn" data-action="next" id="next">다음 화면 →</button></nav></div>
+<div class="stage"><aside class="outside"><h1>추천결과지 프로토타입</h1><button id="prev" data-act="prev">← 이전 화면</button><button id="next" data-act="next">다음 화면 →</button><button id="whole" data-act="whole">추천결과지 전체 보기</button></aside><main id="phone" class="phone" aria-label="필그램 인터랙티브 프로토타입"></main></div>
 <script>
 "use strict";
-var app=document.getElementById("app");
-var labels=["설문 시작","성별","나이","설문 응답","불편 경험","팩 이름","추천결과지","상담 예약","예약 완료"];
-var ingredients=["유산균","마그네슘","비타민B","은행잎추출물","비오틴","이노시톨","비타민D","셀레늄","쏘팔메토 옥타코사놀","엽산"];
-var warnings=["녹차추출물","철분","크롬"];
-var options=["없음","홍삼","종합비타민","오메가3","유산균","비타민C","비타민B","철분","밀크씨슬","마그네슘","칼슘","아연","루테인","비타민D","비타민A","엽산","코엔자임Q10","크롬","기타 영양제"];
-var health=[["신체",[["키","164cm"],["몸무게","70kg"],["BMI","23.9kg/m²"]]],["혈압",[["혈압(최고/최저)","98/60mmHg"]]],["혈당",[["공복혈당(FBS)","71mg/dl"]]],["지질검사",[["총콜레스테롤","202mg/dl"],["HDL콜레스테롤","60mg/dl"],["LDL콜레스테롤","136mg/dl"],["중성지방","32mg/dl"]]],["간 기능",[["AST","24U/L"],["ALT","24U/L"],["감마지피티","24U/L"]]],["신장 기능",[["요단백","음성"],["혈청크레아티닌","71mg/dl"],["신사구체여과율","0.9ml/min"]]],["헤모글로빈",[["혈색소","12.6g/dl"]]]];
-var s={page:0,gender:"",age:"",digest:"",adverse:[],name:"",chat:0,details:false,selectedDate:"",selectedTime:"",booked:null};
-function safe(x){return String(x).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-function btn(text,action,disabled,klass){return '<button class="'+(klass||"primary")+'" data-action="'+action+'"'+(disabled?' disabled':'')+'>'+text+'</button>'}
-function topbar(text){return '<header class="bar"><button class="back" aria-label="뒤로" data-action="prev">‹</button><strong>'+text+'</strong><span style="width:32px"></span></header>'}
-function layout(heading,body,foot,isChat){return topbar(heading)+'<div class="content'+(isChat?' chat':'')+'" id="content">'+body+'</div>'+(foot?'<footer class="footer">'+foot+'</footer>':'')}
-function chosen(what,val){return s[what]===val?" selected":""}
-function choices(items,what){return '<div class="choices">'+items.map(function(x){return '<button class="choice'+chosen(what,x)+'" data-action="'+what+'" data-value="'+safe(x)+'" aria-pressed="'+String(s[what]===x)+'">'+safe(x)+'</button>'}).join("")+'</div>'}
-function chips(items,what,multi){return '<div class="chips">'+items.map(function(x){var is=multi?s.adverse.indexOf(x)>=0:s[what]===x;return '<button class="chip'+(is?' selected':'')+'" data-action="'+what+'" data-value="'+safe(x)+'" aria-pressed="'+String(is)+'">'+safe(x)+'</button>'}).join("")+'</div>'}
-function resultBody(){var a='<div class="avatar">P</div><div class="bubble"><strong>건강검진 결과를 바탕으로 현재 상태를 확인해볼까요?</strong><div class="summary"><span class="danger">위험 5</span><span class="warn">주의 5</span><span class="ok">정상 5</span></div>'+btn("건강검진 결과 자세히 보기","details",false,"resultbtn")+'</div>';
-if(s.chat>=1){a+='<div class="avatar">P</div><div class="bubble"><strong>건강 상태를 확인해보세요.</strong>'+["간 건강","위 건강","관절/근육","혈압 관리","혈당 관리"].map(function(x){return '<div class="healthrow"><strong>'+x+'</strong></div>'}).join("")+'</div>'}
-if(s.chat>=2){a+='<div class="bubble">추천 영양성분과 주의해야 할 영양성분을 확인해볼까요?</div>'}
-if(s.chat>=3){a+='<div class="avatar">P</div><div class="bubble"><strong>추천 & 주의해야 할 영양성분이에요.</strong><p class="sub">주의 3개</p><div class="ingredients">'+warnings.map(function(x){return '<div class="ingredient warnbg">'+x+'</div>'}).join("")+'</div><p class="sub">추천 10개</p><div class="ingredients">'+ingredients.map(function(x){return '<div class="ingredient">'+x+'</div>'}).join("")+'</div></div>'}
-if(s.chat>=4){a+='<div class="avatar">P</div><div class="bubble"><strong>추천받은 성분 중 확인이 필요한 영양성분이 있어요. 상담을 통해 알려드릴게요.</strong><div class="stats"><div class="statsgrid"><span>약 복용 시 주의<b>3개</b></span><span>흡수 방해<b>2개</b></span><span>섭취 시간<b>4개</b></span><span>흡수 도움<b>1개</b></span></div></div><p class="sub">최종 조합은 전문가 상담 후 확정됩니다.</p></div>'}
-return a}
-function healthSheet(){return '<div class="sheetmask" role="dialog" aria-modal="true" aria-label="건강검진 결과 상세"><section class="sheet"><div class="sheethead">건강검진 결과 <button data-action="close" aria-label="닫기">×</button></div><div class="sheetbody"><p class="sub">2025년 1월 · 시연용 예시 데이터</p><div class="summary"><span class="danger">위험 5</span><span class="warn">주의 5</span><span class="ok">정상 5</span></div>'+health.map(function(g){return '<h3>'+g[0]+'</h3>'+g[1].map(function(v){return '<div class="healthrow"><span>'+v[0]+'</span><strong>'+v[1]+'</strong></div>'}).join("")}).join("")+'<p class="minor">수치는 고정 예시이며 사용자의 실제 검진결과가 아닙니다.</p></div></section></div>'}
-function dates(){var result=[];var today=new Date();for(var i=1;i<=3;i++){var d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i,12);result.push([d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),(d.getMonth()+1)+'/'+d.getDate()+' ('+["일","월","화","수","목","금","토"][d.getDay()]+')'])}return result}
-function render(){var p=s.page,body="",foot="",heading="";
-if(p===0){heading="건강 설문";body='<h2>나에게 맞는 영양성분을<br>함께 찾아볼까요?</h2><p class="sub">건강검진 결과로 알 수 없는 생활습관과 식습관도 몇 가지 알려주세요.</p><p class="minor">이 시연에서는 건강검진 데이터 업로드를 생략하고 Figma 예시 검진 결과를 사용합니다.</p>';foot=btn("설문 시작하기","forward")}
-if(p===1){heading="건강 설문";body='<h2>성별을 알려주세요</h2>'+choices(["남성","여성"],"gender");foot=btn("다음","forward",!s.gender)}
-if(p===2){heading="건강 설문";body='<h2>나이를 알려주세요</h2>'+chips(["19세 이하","20대","30대","40대","50대","60세 이상"],"age");foot=btn("다음","forward",!s.age)}
-if(p===3){heading="건강 설문";body='<h2>소화불량이 잦은 편인가요?</h2><p class="sub">배가 더부룩하거나 소화가 안 되는 증상</p>'+choices(["예","아니오"],"digest");foot=btn("다음","forward",!s.digest)}
-if(p===4){heading="건강 설문";body='<h2>불편한 증상을 경험한 영양제에 모두 체크해주세요</h2><p class="sub">알러지, 피부트러블, 위장장애, 속쓰림 등</p>'+chips(options,"adverse",true);foot=btn("다음","forward",!s.adverse.length)}
-if(p===5){heading="팩 이름 작성";body='<h2>마지막으로 이름을 알려주세요</h2><p class="sub">나만의 한 팩 영양제에 적어드려요.</p><input class="field" id="packname" aria-label="팩에 표시할 이름" maxlength="20" placeholder="이름" value="'+safe(s.name)+'"><div class="pack"><b>pillgram</b><hr><strong id="preview">'+safe(s.name||"나의 이름")+'님</strong><p class="sub">추천영양제 A<br>추천영양제 B<br>추천영양제 C</p><small>건강기능식품</small></div>';foot=btn("다음","forward",!s.name.trim())}
-if(p===6){heading="추천 결과";body=resultBody();foot=s.chat>=4?btn("상담 예약하기","forward"):btn(s.chat===2?"확인할래요":"계속 보기","reveal");}
-if(p===7){heading="상담예약";var dayList=dates();body='<h2>상담 가능한 날짜와 시간을 선택해주세요</h2><p class="sub">원하는 날짜를 직접 선택할 수 있어요.</p><div class="calendar">'+dayList.map(function(v){return '<button class="day'+(s.selectedDate===v[0]?' selected':'')+'" data-action="date" data-value="'+v[0]+'">'+v[1]+'</button>'}).join("")+'</div><h3>시간</h3><div class="slots">'+["09:00","10:00","11:00","11:30","13:00","14:00","15:00","16:00"].map(function(v){return '<button class="slot'+(s.selectedTime===v?' selected':'')+'" data-action="time" data-value="'+v+'">'+v+'</button>'}).join("")+'</div><p class="minor">시연용 시간이며 실제 예약 가능 시간과 무관합니다.</p>';foot=btn("상담 예약하기","reserve",!s.selectedDate||!s.selectedTime)}
-if(p===8){heading="예약 완료";body='<div class="done"><b>✓</b><h2>상담이 예약됐어요</h2><p class="sub">선택한 상담시간을 확인해주세요.</p></div><div class="review"><strong>'+safe(s.booked?s.booked.date:"")+'</strong><br><strong>'+safe(s.booked?s.booked.time:"")+'</strong></div><p class="minor">실제 상담 예약·결제·알림이 이루어지지 않는 데모입니다.</p>';foot=btn("예약 변경하기","change",false,"secondary")+'<div style="height:8px"></div>'+btn("처음으로 가기","reset")}
-app.innerHTML=topbar(heading)+'<div id="content" class="content'+(p===6?' chat':'')+'">'+body+'</div>'+(foot?'<footer class="footer">'+foot+'</footer>':'')+(s.details?healthSheet():'');
-document.getElementById("step").textContent=String(p+1).padStart(2,"0")+" / 09 · "+labels[p];document.getElementById("prev").disabled=p===0&&!s.details;document.getElementById("next").disabled=p===8&&!s.details}
-function forward(force){if(s.details){s.details=false;render();return}if(s.page===6){if(s.chat<4){s.chat++;render();return}s.page=7;render();return}
-if(!force&&((s.page===1&&!s.gender)||(s.page===2&&!s.age)||(s.page===3&&!s.digest)||(s.page===4&&!s.adverse.length)||(s.page===5&&!s.name.trim())))return;
-if(s.page<8)s.page++;render()}
-function previous(){if(s.details){s.details=false;render();return}if(s.page===6&&s.chat>0){s.chat--;render();return}if(s.page>0)s.page--;render()}
-function reset(){s={page:0,gender:"",age:"",digest:"",adverse:[],name:"",chat:0,details:false,selectedDate:"",selectedTime:"",booked:null};render()}
-document.addEventListener("click",function(e){var b=e.target.closest("button[data-action]");if(!b||b.disabled)return;var act=b.dataset.action,val=b.dataset.value;if(act==="forward"||act==="next")forward(act==="next");else if(act==="prev")previous();else if(act==="reset")reset();else if(["gender","age","digest"].indexOf(act)>=0){s[act]=val;render()}else if(act==="adverse"){if(val==="없음")s.adverse=["없음"];else{s.adverse=s.adverse.filter(function(x){return x!=="없음"});s.adverse=s.adverse.indexOf(val)<0?s.adverse.concat(val):s.adverse.filter(function(x){return x!==val})}render()}else if(act==="reveal"){s.chat=Math.min(4,s.chat+1);render();var content=document.getElementById("content");content.scrollTop=content.scrollHeight}else if(act==="details"){s.details=true;render()}else if(act==="close"){s.details=false;render()}else if(act==="date"){s.selectedDate=val;render()}else if(act==="time"){s.selectedTime=val;render()}else if(act==="reserve"){if(s.selectedDate&&s.selectedTime){s.booked={date:s.selectedDate,time:s.selectedTime};s.page=8;render()}}else if(act==="change"){s.page=7;render()}});
-document.addEventListener("input",function(e){if(e.target.id==="packname"){s.name=e.target.value;document.getElementById("preview").textContent=(s.name||"나의 이름")+"님";var b=app.querySelector(".primary");if(b)b.disabled=!s.name.trim()}});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&s.details){s.details=false;render()}});
+const el=id=>document.getElementById(id),asset=n=>"./assets/"+n+".png";
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function initial(){return {p:0,gender:"남성",age:"19세 이하",digest:"예",multi:["없음"],edited:false,name:"필그램",r:0,whole:false,detail:"",day:0,hour:"12",minute:"30",booking:null}}
+let s=initial(),timer;
+const pictures=["survey-start","gender","age","digest","multi","pack","","booking","booked"];
+const ages=[["19세 이하",20,156,113],["20대",141,156,64],["30대",213,156,68],["40대",20,212,66],["50대",94,212,65],["60세 이상",167,212,99]];
+const mult=[["없음",20,220,64],["홍삼",88,220,64],["종합비타민",156,220,120],["오메가3",20,276,67],["유산균",91,276,76],["비타민C",171,276,105],["비타민C ",20,332,68],["비타민B",92,332,87],["철분",183,332,68],["밀크씨슬",20,388,79],["마그네슘",103,388,83],["칼슘",190,388,72],["아연",266,388,74],["루테인",20,444,75],["비타민D",99,444,82],["비타민A",185,444,88],["엽산",20,500,60],["코엔자임Q10",84,500,113],["크롬",201,500,74]];
+const days=[["25","오늘"],["26","내일"],["27","금"]],hours=["9","10","11","12","14","15","16","17"],mins=["00","10","20","30","40","50"];
+function hot(x,y,w,h,act,label,v=""){return '<button type="button" class="hit" data-act="'+act+'" data-val="'+escapeHTML(v)+'" aria-label="'+escapeHTML(label)+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px"></button>'}
+function screen(n){return '<img class="shot" alt="" src="'+asset(n)+'" draggable="false">'}
+function tile(x,y,text,icon,selected){return '<span class="tile '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px"><img alt="" src="'+asset(icon)+'"><span>'+text+'</span></span>'}
+function chip(text,x,y,w,h,selected,extra=""){return '<span class="chip '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;'+extra+'">'+text+'</span>'}
+function bookingchip(text,x,y,w,h,on,cls=""){return '<span class="booking-chip '+cls+' '+(on?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px">'+text+'</span>'}
+function render(){
+ clearTimeout(timer);let bg="",over="",act="";let p=s.p;
+ el("prev").disabled=p===0&&!s.detail;el("next").disabled=p===8&&!s.detail;
+ el("whole").style.display=p===6?"block":"none";el("whole").textContent=s.whole?"채팅형 순차 보기":"추천결과지 전체 보기";
+ if(s.detail==="modal"){bg=screen("detail-modal");act=hot(0,115,360,598,"detail-full","건강검진 전체 상세 스크롤")+hot(305,66,50,47,"close","닫기");}
+ else if(s.detail==="full"){bg='<div class="detail-scroll"><img src="'+asset("detail-full")+'" alt="건강검진 전체 상세"></div>';act=hot(0,0,54,56,"close","건강검진 결과로 돌아가기");}
+ else if(p===6&&s.whole){
+  bg='<div class="scroll" id="full-scroll"><img src="'+asset("result-full")+'" alt="건강 상태부터 추천·주의 영양성분, 상담까지의 전체 추천결과지">'+hot(36,204,268,32,"detail","건강검진 결과 자세히 보기")+'</div><div class="crop" style="top:0;height:56px"><img src="'+asset("result-06")+'" style="top:0"></div><div class="crop" style="bottom:0;height:132px"><img src="'+asset("result-06")+'" style="top:-583px"></div>';
+  act=hot(20,619,320,56,"reserve","상담 예약하기")+hot(4,4,48,48,"prev","이전 화면");
+  if(s.name!=="필그램")over='<span class="paint" style="left:36px;top:140px;width:268px;height:22px;background:white;font-size:14px">'+escapeHTML(s.name)+'님의 건강검진 결과예요.</span>';
+ }else{
+  bg=screen(p===6?"result-0"+(s.r+1):pictures[p]);
+  if(p===0){act+=hot(20,619,320,56,"next","설문 시작하기");}
+  if(p===1){
+   act+=hot(20,154,156,98,"gender","남성 선택","남성")+hot(184,154,156,98,"gender","여성 선택","여성")+hot(20,619,320,56,"next","다음");
+   if(s.gender!=="남성")over+=tile(20,154,"남성","icon-man",false)+tile(184,154,"여성","icon-woman",true);
+  }
+  if(p===2){
+   ages.forEach(z=>{let [text,x,y,w]=z;act+=hot(x,y,w,40,"age",text+" 선택",text);if(s.age!=="19세 이하")over+=chip(text,x,y,w,40,s.age===text)});
+   act+=hot(20,619,320,56,"next","다음");
+  }
+  if(p===3){
+   act+=hot(20,184,156,98,"digest","예 선택","예")+hot(184,184,156,98,"digest","아니오 선택","아니오")+hot(20,619,320,56,"next","다음");
+   if(s.digest!=="예")over+=tile(20,184,"예","icon-yes",false)+tile(184,184,"아니오","icon-no",true);
+  }
+  if(p===4){
+   mult.forEach(z=>{let [text,x,y,w]=z;act+=hot(x,y,w,40,"multi",text+" 선택",text);if(s.edited)over+=chip(text,x,y,w,40,s.multi.includes(text));});
+   act+=hot(20,570,320,48,"multi","기타 영양제","기타 영양제")+hot(20,619,320,56,"next","다음");
+   if(s.edited&&s.multi.includes("기타 영양제"))over+=chip("기타 영양제",20,570,320,48,true,"justify-content:flex-start;padding-left:16px");
+  }
+  if(p===5){act+=hot(20,619,320,56,"next","추천 결과로 이동");over+='<input id="pack-input" class="name-input" maxlength="12" aria-label="팩 이름 입력" value="'+escapeHTML(s.name)+'"><span id="name-preview" class="name-preview">'+escapeHTML(s.name)+'님</span>';}
+  if(p===6){
+   act+=hot(4,4,48,48,"prev","이전 화면");
+   if(s.r===0)act+=hot(36,260,268,32,"detail","건강검진 결과 자세히 보기");
+   if(s.r===2)act+=hot(20,621,320,56,"result-next","확인할래요");
+   if(s.r===3)act+=hot(220,524,120,56,"result-next","확인할래요");
+   if(s.r===5)act+=hot(20,619,320,56,"reserve","상담 예약하기");
+   if(s.name!=="필그램"&&s.r===0)over+='<span class="paint" style="left:36px;top:140px;width:268px;height:24px;background:white;font-size:14px">'+escapeHTML(s.name)+'님의 건강검진 결과예요.</span>';
+  }
+  if(p===7){
+   act+=hot(4,4,48,48,"prev","이전 화면");
+   days.forEach((z,i)=>{let x=20+i*72;act+=hot(x,209,60,64,"day",z[0]+"일 선택",String(i));if(s.day!==0)over+=bookingchip(z[0]+"<small>"+z[1]+"</small>",x,209,60,64,s.day===i,"day")});
+   hours.forEach((t,i)=>{let x=21+i%4*83,y=346+Math.floor(i/4)*52;act+=hot(x,y,70,40,"hour",t+"시 선택",t);if(s.hour!=="12")over+=bookingchip(t+"시",x,y,70,40,s.hour===t)});
+   mins.forEach((t,i)=>{let x=i<4?21+i*83:20+(i-4)*83,y=i<4?511:563;act+=hot(x,y,70,40,"minute",t+"분 선택",t);if(s.minute!=="30")over+=bookingchip(t+"분",x,y,70,40,s.minute===t)});
+   if(s.day!==0||s.hour!=="12"||s.minute!=="30")over+='<div class="booking-cta">'+(s.day===0?"오늘":days[s.day][0]+"일")+' '+s.hour+'시 '+s.minute+'분으로 예약하기</div>';
+   act+=hot(20,619,320,56,"book","상담 예약 확정");
+  }
+  if(p===8){
+   act+=hot(4,4,48,48,"prev","이전 화면")+hot(20,619,120,56,"change","예약 변경하기")+hot(148,619,192,56,"reset","처음으로 가기");
+   if(s.booking)over+='<div class="booking-summary"><span>'+escapeHTML(s.booking.date)+'</span><span>'+escapeHTML(s.booking.time)+'</span></div>';
+  }
+  if(p>0&&p<6)act+=hot(4,4,48,48,"prev","이전 화면");
+ }
+ el("phone").innerHTML=bg+over+act;
+ const inp=el("pack-input");if(inp)inp.addEventListener("input",e=>{s.name=e.target.value;el("name-preview").textContent=s.name+"님"});
+ if(p===6&&!s.whole&&!s.detail&&[0,1,3,4].includes(s.r)){const at=s.r;timer=setTimeout(()=>{if(s.p===6&&!s.whole&&!s.detail&&s.r===at){s.r++;render()}},at===0?1700:at===1?1900:at===3?850:1700);}
+}
+function next(external=false){
+ if(s.detail){if(s.detail==="modal")s.detail="full";else s.detail="";render();return}
+ if(s.p===6){if(s.whole){s.p=7;s.whole=false}else if(s.r<5)s.r++;else s.p=7;render();return}
+ if(s.p===5&&!s.name.trim()&&!external){el("pack-input").focus();return}
+ s.p=Math.min(8,s.p+1);render()
+}
+function prev(){
+ if(s.detail){s.detail="";render();return}
+ if(s.p===6){if(s.whole){s.whole=false;s.r=5}else if(s.r>0)s.r--;else s.p=5}
+ else if(s.p>0){s.p--;if(s.p===6)s.r=5}
+ render()
+}
+document.addEventListener("click",e=>{const b=e.target.closest("button[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.val;
+ if(a==="next"){next(b.id==="next");return}if(a==="prev"){prev();return}
+ if(a==="whole"){s.whole=!s.whole;s.r=5;render();return}
+ if(["gender","age","digest"].includes(a)){s[a]=v;render();return}
+ if(a==="multi"){s.edited=true;if(v==="없음")s.multi=["없음"];else{s.multi=s.multi.filter(x=>x!=="없음");s.multi=s.multi.includes(v)?s.multi.filter(x=>x!==v):s.multi.concat(v)}render();return}
+ if(a==="result-next"){s.r=Math.min(5,s.r+1);render();return}
+ if(a==="detail"){s.detail="modal";render();return}if(a==="detail-full"){s.detail="full";render();return}
+ if(a==="close"){s.detail="";render();return}
+ if(a==="reserve"){s.p=7;s.whole=false;render();return}
+ if(a==="day"){s.day=Number(v);render();return}if(a==="hour"){s.hour=v;render();return}if(a==="minute"){s.minute=v;render();return}
+ if(a==="book"){s.booking={date:days[s.day][0]+"일 ("+days[s.day][1]+")",time:s.hour+"시 "+s.minute+"분"};s.p=8;render();return}
+ if(a==="change"){s.p=7;render();return}if(a==="reset"){s=initial();render();return}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&s.detail){s.detail="";render();return}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")prev();if(e.key==="ArrowRight")next(true)});
 render();
 </script></body></html>
