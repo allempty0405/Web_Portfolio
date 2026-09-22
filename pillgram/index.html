@@ -1,220 +1,287 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>추천결과지 프로토타입</title><style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;color:#222}body{background:#f5f6f7}
-.stage{min-height:100dvh;display:flex;align-items:center;justify-content:center;gap:28px;padding:12px}
-.outside{width:180px;flex:0 0 180px;display:flex;flex-direction:column;gap:12px}
-.outside h1{font-size:23px;line-height:1.4;letter-spacing:-.05em;margin:0 0 18px}
-.outside button{min-height:46px;border:1px solid #d6ddd8;border-radius:8px;background:#fff;text-align:left;padding:10px 14px;font-size:14px;cursor:pointer;font-weight:650}
-.outside button:disabled{opacity:.4;cursor:not-allowed}
-.phone{width:360px;height:715px;flex:0 0 360px;position:relative;overflow:hidden;border-radius:32px;background:#f8f9fa;box-shadow:0 12px 42px #203a2520}
-.shot{width:360px;height:715px;display:block;pointer-events:none;user-select:none}
-.hit{position:absolute;z-index:4;border:0;background:transparent;font-size:0;color:transparent;cursor:pointer;padding:0}
-.hit:focus-visible,.outside button:focus-visible,.name-input:focus-visible{outline:3px solid #2aad5c;outline-offset:2px}
-.paint{position:absolute;z-index:3}
-.tile{position:absolute;z-index:3;width:156px;height:98px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500}
-.tile img{width:40px;height:40px;object-fit:contain}.selected{background:#f1fbf5!important;border:1px solid #2aad5c!important;color:#222!important}.plain{background:#f8f9fa!important;border:1px solid transparent!important;color:#757575!important}
-.chip{position:absolute;z-index:3;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:16px;font-weight:500;white-space:nowrap}
-.name-input{position:absolute;z-index:5;top:208px;left:36px;width:285px;height:24px;border:0;outline:0;background:white;color:#222;font-size:16px;font-family:inherit;letter-spacing:-.03em}
-.name-preview{position:absolute;z-index:4;top:328px;left:106px;min-width:90px;max-width:120px;height:21px;background:white;white-space:nowrap;overflow:hidden;font-size:14px}
-.booking-chip{position:absolute;z-index:3;display:flex;justify-content:center;align-items:center;background:#f8f9fa;color:#757575;border-radius:8px;font-size:14px;font-weight:500}
-.booking-chip.day{flex-direction:column}.booking-chip small{font-size:12px}
-.booking-cta{position:absolute;z-index:3;top:619px;left:20px;width:320px;height:56px;display:flex;align-items:center;justify-content:center;background:#2aad5c;border-radius:8px;color:white;font-size:16px;font-weight:700}
-.booking-summary{position:absolute;z-index:3;top:321px;left:58px;width:246px;height:34px;background:white;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700}
-.scroll{position:absolute;top:56px;bottom:132px;width:360px;overflow-y:auto;background:#f8f9fa}
-.scroll img{width:360px;height:2156px;display:block;margin-top:-56px;user-select:none;pointer-events:none}
-.crop{position:absolute;left:0;width:360px;overflow:hidden;z-index:2;pointer-events:none}
-.crop img{width:360px;height:715px;position:absolute;left:0}
-.detail-scroll{position:absolute;top:0;left:0;width:360px;height:715px;overflow-y:auto;z-index:2;background:white}
-.detail-scroll img{width:360px;height:1692px;display:block}
-.close{position:absolute;z-index:5;top:9px;left:8px;width:42px;height:42px;cursor:pointer;border:0;background:transparent;color:transparent}
-@media(max-width:620px){.stage{gap:8px;padding:5px}.outside{width:92px;flex-basis:92px;gap:8px}.outside h1{font-size:15px;margin-bottom:10px}.outside button{text-align:center;padding:6px 4px;font-size:12px}.phone{zoom:min(1,calc((100vw - 112px)/360))}}
-@media(max-height:740px) and (min-width:621px){.phone{zoom:calc((100dvh - 24px)/715)}}
-
-
-/* Interactive controls reproduce the approved Figma component states. */
-.survey-chip{position:absolute;z-index:5;display:inline-flex;height:48px;padding:8px 16px;justify-content:center;align-items:center;gap:8px;border:1px solid transparent;border-radius:6px;background:#F8F9FA;color:#222;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:16px;font-style:normal;font-weight:500;line-height:140%;letter-spacing:-.32px;white-space:nowrap;cursor:pointer}
-.survey-chip.is-selected{border-color:#2AAD5C;background:#F1FBF5;color:#2AAD5C}
-.survey-chip svg{width:18px;height:18px;flex:0 0 18px}
-.survey-chip:focus-visible,.booking-choice:focus-visible,.pack-entry input:focus-visible{outline:2px solid #2AAD5C;outline-offset:2px}
-.pack-entry{position:absolute;z-index:6;left:20px;top:184px;width:320px;height:56px;display:flex;align-items:center;padding:0 46px 0 16px;background:#fff;border:1px solid #DDD;border-radius:8px}
-.pack-entry.is-focused,.pack-entry.has-value{border-color:#4CAF50;align-items:stretch;padding-top:0}
-.pack-entry label{position:absolute;left:16px;top:5px;color:#AAA;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:13px;font-style:normal;font-weight:400;line-height:130%;letter-spacing:-.13px;display:none}
-.pack-entry.is-focused label,.pack-entry.has-value label{display:block}
-.pack-entry input{display:block;width:100%;height:100%;min-width:0;padding:0;border:0;background:transparent;color:#222;font-size:16px;font-style:normal;font-weight:400;line-height:140%;letter-spacing:-.32px;outline:none}
-.pack-entry.is-focused input,.pack-entry.has-value input{padding-top:14px}
-.pack-entry input::placeholder{color:#AAA;opacity:1}
-.pack-entry .clear-name{position:absolute;right:14px;top:17px;width:20px;height:20px;display:none;border:none;background:none;padding:0;z-index:2}
-.pack-entry.has-value .clear-name{display:block}
-.pack-entry .clear-name svg{width:20px;height:20px}
-.name-preview-new{position:absolute;z-index:4;left:106px;top:327px;width:122px;height:24px;overflow:hidden;background:#fff;color:#222;font-size:14px;font-weight:700;line-height:24px;white-space:nowrap}
-.booking-choice{position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;white-space:nowrap;border:1px solid transparent;border-radius:8px;background:#F8F9FA;color:#757575;font-size:14px;font-weight:500;line-height:1.4;cursor:pointer}
-.booking-choice.is-selected{border-color:#2AAD5C;background:#F1FBF5;color:#2AAD5C}
-.booking-choice small{font-size:12px}
-.booking-cta{z-index:3}
-.done-value{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;height:34px;top:319px;background:#F8F9FA;color:#222;font-size:16px;font-weight:700;line-height:1.4;white-space:nowrap;border:0}
-.chat-scroller{position:absolute;left:0;right:0;top:56px;bottom:132px;overflow-y:auto;background:#F8F9FA;overscroll-behavior:contain;scrollbar-width:thin}
-.chat-progress{position:relative;width:360px;overflow:hidden;transition:height 280ms ease-out}
-.chat-progress img{position:absolute;left:0;top:-56px;width:360px;height:2068px;max-width:none;pointer-events:none;user-select:none}
-.chat-tap{position:absolute;z-index:3;border:0;padding:0;background:transparent;cursor:pointer;color:transparent;font-size:0}
-.chat-fixed-header,.chat-fixed-footer{position:absolute;left:0;width:360px;overflow:hidden;z-index:3;pointer-events:none}
-.chat-fixed-header{top:0;height:56px}
-.chat-fixed-footer{bottom:0;height:132px}
-.chat-fixed-header img,.chat-fixed-footer img{position:absolute;left:0;width:360px;height:715px;max-width:none}
-.chat-fixed-header img{top:0}
-.chat-fixed-footer img{top:-583px}
-
-</style></head><body>
-<div class="stage"><aside class="outside"><h1>추천결과지 프로토타입</h1><button id="prev" data-act="prev">← 이전 화면</button><button id="next" data-act="next">다음 화면 →</button><button id="whole" data-act="whole">추천결과지 전체 보기</button></aside><main id="phone" class="phone" aria-label="필그램 인터랙티브 프로토타입"></main></div>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8f9fa">
+<title>추천결과지 프로토타입</title>
+<style>
+:root{--green:#2AAD5C;--green-light:#F1FBF5;--ink:#222;--muted:#757575;--gray:#F8F9FA;--line:#DDD}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink)}
+body{background:#f5f6f7}
+button,input{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid #2AAD5C;outline-offset:2px}
+.stage{display:flex;min-height:100dvh;align-items:center;justify-content:center;gap:28px;padding:16px}
+.outside{display:flex;flex-direction:column;gap:12px;width:180px;flex:0 0 180px}
+.outside h1{font-size:22px;line-height:1.4;letter-spacing:-.05em;margin:0 0 16px}
+.outside button{min-height:46px;background:#fff;border:1px solid #D6DDD8;border-radius:8px;text-align:left;padding:9px 13px;font-size:14px;font-weight:600}
+.outside button:disabled{opacity:.38;cursor:not-allowed}
+.phone{position:relative;flex:0 0 360px;width:360px;height:715px;overflow:hidden;background:#fff;border:1px solid #DDD;border-radius:32px;box-shadow:0 13px 40px #203a251d}
+.header{position:absolute;left:0;right:0;top:0;height:56px;z-index:10;display:flex;align-items:center;justify-content:center;background:#fff}
+.header.is-result{background:rgba(248,249,250,.9);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.header-title{font-size:16px;font-weight:700;line-height:22px;letter-spacing:-.32px}
+.back{position:absolute;top:4px;left:4px;width:48px;height:48px;border:0;background:transparent;color:#222;font-size:27px;display:flex;align-items:center;justify-content:center}
+.close-head{position:absolute;top:4px;right:4px;width:48px;height:48px;background:transparent;border:0;font-size:27px}
+.surface{position:absolute;inset:56px 0 132px;overflow-y:auto;padding:24px 20px 30px;background:#fff}
+.surface::-webkit-scrollbar,.chat-body::-webkit-scrollbar,.sheet-body::-webkit-scrollbar{display:none}
+.surface,.chat-body,.sheet-body{scrollbar-width:none;overscroll-behavior:contain}
+.title{margin:0;color:#222;font-size:24px;font-weight:700;line-height:1.4;letter-spacing:-.6px}
+.subtitle{margin:8px 0 0;color:#757575;font-size:16px;font-weight:400;line-height:1.4;letter-spacing:-.32px}
+.footer{position:absolute;bottom:0;left:0;right:0;height:132px;background:#fff;padding:36px 20px 40px;z-index:8}
+.footer.chat-footer{background:rgba(255,255,255,.98)}
+.cta{height:56px;width:100%;border:0;border-radius:8px;background:var(--green);color:#fff;font-size:16px;font-weight:700;line-height:1.4;letter-spacing:-.32px}
+.cta:disabled{background:#B8DCC4;cursor:not-allowed}
+.options{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px;align-content:flex-start}
+.opt{display:inline-flex;height:48px;padding:8px 16px;justify-content:center;align-items:center;gap:8px;flex:0 0 auto;border:1px solid transparent;border-radius:6px;background:#F8F9FA;color:#222;font-family:inherit;font-size:16px;font-weight:500;line-height:140%;letter-spacing:-.32px;white-space:nowrap}
+.opt.is-active{border:1px solid #2AAD5C;background:#F1FBF5;color:#2AAD5C}
+.opt svg{display:block;width:18px;height:18px;flex:0 0 18px}
+.two-picks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:40px}
+.large-pick{height:98px;border:1px solid transparent;border-radius:10px;background:#F8F9FA;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500}
+.large-pick.is-active{background:#F1FBF5;border-color:#2AAD5C}
+.large-pick img{display:block;width:40px;height:40px;object-fit:contain}
+.pack-field{position:relative;width:320px;height:56px;border:1px solid #DDD;border-radius:8px;background:#fff;margin-top:40px;display:flex;align-items:center;padding:0 44px 0 16px}
+.pack-field:focus-within,.pack-field.has-text{border-color:#4CAF50}
+.pack-field label{display:none;position:absolute;left:16px;top:6px;color:#AAA;font-size:13px;line-height:130%;font-weight:400;letter-spacing:-.13px}
+.pack-field:focus-within label,.pack-field.has-text label{display:block}
+.pack-field input{width:100%;min-width:0;border:0;background:none;color:#222;outline:0;font-size:16px;line-height:140%;font-weight:400;letter-spacing:-.32px}
+.pack-field:focus-within input,.pack-field.has-text input{padding-top:15px}
+.pack-field input::placeholder{color:#AAA;opacity:1}
+.clear-name{position:absolute;top:17px;right:14px;border:0;background:transparent;padding:0;width:20px;height:20px;display:none}
+.pack-field.has-text .clear-name{display:block}
+.pack-field .clear-name svg{width:20px;height:20px}
+.pack-card{position:relative;width:190px;height:215px;margin:34px auto 0;padding:20px;background:#fff;box-shadow:0 3px 11px #0000001c;border:1px solid #F0F0F0;display:flex;flex-direction:column}
+.pack-card:before,.pack-card:after{content:"";position:absolute;left:-9px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:9px solid #fff}
+.pack-card:before{top:36px}.pack-card:after{top:61px}
+.pack-logo{display:block;width:46px;height:14px;object-fit:contain;margin-bottom:22px}
+.pack-name{font-size:16px;font-weight:750;line-height:1.4;margin:0 0 4px}
+.pack-line{height:4px;width:132px;background:#222;margin-bottom:14px}
+.pack-ingredients{font-size:12px;line-height:1.5;color:#757575}
+.pack-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;font-size:8px;color:#333}
+.pack-badge{padding:5px 8px;background:#222;border-radius:3px;color:#fff;font-size:8px}
+.chat-body{position:absolute;top:56px;bottom:132px;left:0;right:0;overflow-y:auto;background:#F8F9FA;padding:24px 20px 24px;z-index:1}
+.chat-message{margin-bottom:12px;animation:arrive .24s ease-out}
+@keyframes arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bot-avatar{display:block;width:32px;height:32px;object-fit:contain;margin-bottom:12px}
+.bot-bubble{width:300px;background:#fff;border-radius:0 18px 18px 18px;padding:20px 16px;box-shadow:0 1px 3px #00000007}
+.bot-bubble h3{margin:0;font-size:16px;line-height:1.4;letter-spacing:-.32px;font-weight:550}
+.statuses{display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;margin-bottom:20px}
+.status{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:14px;font-weight:600;border-right:1px solid #ECECEC}
+.status:last-child{border-right:0}
+.status .symbol{height:24px;width:24px;border-radius:50%;display:grid;place-items:center;font-size:17px}
+.status.danger{color:#F60909}.status.danger .symbol{background:#FEE6E6}
+.status.warning{color:#FF7A00}.status.warning .symbol{background:#FFF0DC}
+.status.good{color:#228A4A}.status.good .symbol{background:#E8F5E9}
+.detail-btn{width:268px;max-width:100%;height:32px;border-radius:6px;border:1px solid #DDD;background:#fff;color:#222;font-size:13px;font-weight:500}
+.condition-list{margin-top:18px;background:#F8F9FA;border-radius:10px;padding:4px 12px}
+.condition-item{display:flex;align-items:flex-start;gap:8px;padding:13px 0;border-bottom:1px solid #EEE}
+.condition-item:last-child{border-bottom:0}
+.condition-item img{width:40px;height:40px;flex:0 0 40px;object-fit:contain}
+.condition-item strong{display:block;font-size:16px;color:#228A4A;line-height:1.4;margin-bottom:4px}
+.condition-item p{margin:0;color:#757575;font-size:13px;line-height:1.4}
+.user-choice{display:flex;justify-content:flex-end;margin:12px 0 18px}
+.user-choice button,.user-choice span{background:#2AAD5C;color:#fff;border:0;border-radius:16px 3px 16px 16px;padding:13px 16px;font-size:15px;font-weight:600}
+.grouped-ingredients{margin-top:18px;background:#F8F9FA;padding:14px 12px;border-radius:10px}
+.group-head{display:flex;justify-content:space-between;font-size:14px;color:#222;font-weight:700;margin-bottom:12px}
+.group-head small{font-size:13px;font-weight:500;color:#757575}
+.ingredient-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ingredient{display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;padding:8px 4px;background:#fff;border-radius:8px;font-size:14px;line-height:1.4}
+.ingredient.caution{color:#222}
+.verify-box{margin-top:20px;background:#F1FBF5;border-radius:10px;padding:15px 12px}
+.verify-head{text-align:center;font-size:13px;color:#228A4A;font-weight:700;margin-bottom:12px}
+.verify-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.verify-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:105px;border-radius:8px;background:#fff;text-align:center;font-size:13px;line-height:1.4}
+.verify-tile strong{display:block;color:#228A4A;font-size:24px}
+.sheet-overlay{position:absolute;inset:56px 0 0;background:#0006;z-index:20;display:flex;align-items:flex-end}
+.sheet{height:92%;width:100%;border-radius:20px 20px 0 0;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+.sheet-head{height:56px;flex:0 0 56px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #EEE;font-size:16px;font-weight:700}
+.sheet-head button{border:0;background:transparent;font-size:24px}
+.sheet-body{overflow-y:auto;padding:18px 20px 28px;min-height:0}
+.sheet-body h4{font-size:17px;margin:22px 0 8px;padding-top:10px;border-top:8px solid #F8F9FA}
+.sheet-row{display:flex;justify-content:space-between;gap:15px;font-size:13px;padding:10px 0;border-bottom:1px solid #EEE}
+.sheet-row em{font-style:normal;color:#757575}
+.booking-month{display:flex;align-items:center;justify-content:space-between;margin-top:18px;margin-bottom:12px}
+.booking-month button{width:28px;height:28px;background:none;border:0;font-size:24px}
+.booking-days{display:flex;gap:12px}
+.booking-day,.booking-slot{background:#F8F9FA;border:1px solid transparent;border-radius:8px;color:#757575;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.booking-day{height:64px;width:60px;flex-direction:column;line-height:1.4}
+.booking-day small{font-size:12px}
+.booking-day.is-active,.booking-slot.is-active{background:#F1FBF5;border-color:#2AAD5C;color:#2AAD5C}
+.booking-caption{font-size:14px;font-weight:700;margin:26px 0 12px}
+.booking-slots{display:grid;grid-template-columns:repeat(4,70px);gap:8px 12px}
+.booking-slot{height:40px}
+.booking-minutes{display:grid;grid-template-columns:repeat(4,70px);gap:8px 12px}
+.booking-finish{display:flex;flex-direction:column;align-items:center;padding-top:34px;text-align:center}
+.booking-check{height:64px;width:64px;display:grid;place-items:center;background:#E8F5E9;color:#4CAF50;border-radius:50%;font-size:37px;margin-bottom:24px}
+.booking-finish h2{font-size:24px;margin:0 0 8px;letter-spacing:-.6px}
+.booking-finish p{font-size:15px;color:#757575;line-height:1.4;margin:0}
+.booking-details{width:320px;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:42px}
+.booking-detail{min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#F8F9FA;border-radius:12px}
+.booking-detail small{color:#888;font-size:13px}
+.booking-detail strong{font-size:16px;font-weight:700;color:#222;background:transparent}
+.footer-actions{position:absolute;left:0;right:0;bottom:0;padding:16px 20px 24px;display:flex;gap:8px;background:#fff}
+.footer-actions button{min-height:56px;border-radius:8px;border:0;font-size:15px;font-weight:700}
+.footer-actions button:first-child{flex:1;background:#F8F9FA;color:#222}
+.footer-actions button:last-child{flex:1.3;background:#2AAD5C;color:#fff}
+@media(max-width:650px){.stage{gap:8px;padding:5px;justify-content:center}.outside{width:92px;flex-basis:92px;gap:8px}.outside h1{font-size:15px;line-height:1.4;margin:0 0 8px}.outside button{font-size:12px;text-align:center;padding:8px 5px}.phone{zoom:min(1,calc((100vw - 115px)/360));}}
+@media(max-height:740px) and (min-width:651px){.phone{zoom:calc((100dvh - 20px)/715)}}
+@media(prefers-reduced-motion:reduce){.chat-message{animation:none}*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+<aside class="outside"><h1>추천결과지 프로토타입</h1><button id="previous" type="button">← 이전 화면</button><button id="following" type="button">다음 화면 →</button><button id="entire" type="button">추천결과지 전체 보기</button></aside>
+<main id="app" class="phone" aria-label="필그램 추천결과지 모바일 시연"></main>
+</div>
 <script>
-
 "use strict";
-const el=id=>document.getElementById(id),asset=n=>"./assets/"+n+".png";
-const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function initial(){return {p:0,gender:"남성",age:"19세 이하",digest:"예",multi:["없음"],edited:false,name:"필그램",nameFocused:false,r:0,whole:false,chatStarted:false,chatScroll:0,detail:"",day:0,hour:"12",minute:"30",booking:null};}
-let s=initial(),timer;
-const pictures=["survey-start","gender","age","digest","multi","pack","","booking","booked"];
-const ages=[["19세 이하",20,156,112],["20대",140,156,64],["30대",212,156,67],["40대",20,212,65],["50대",93,212,65],["60세 이상",166,212,101]];
-const mult=[["없음",20,220,64],["홍삼",88,220,64],["종합비타민",156,220,120],["오메가3",20,276,67],["유산균",91,276,76],["비타민C",171,276,105],["비타민C ",20,332,68],["비타민B",92,332,87],["철분",183,332,68],["밀크씨슬",20,388,79],["마그네슘",103,388,83],["칼슘",190,388,72],["아연",266,388,74],["루테인",20,444,75],["비타민D",99,444,82],["비타민A",185,444,88],["엽산",20,500,60],["코엔자임Q10",84,500,113],["크롬",201,500,74]];
-const days=[["25","오늘"],["26","내일"],["27","금"]],hours=["9","10","11","12","14","15","16","17"],mins=["00","10","20","30","40","50"];
-const check='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.7657 4.73964C15.0781 5.05916 15.0781 5.5772 14.7657 5.89672L8.36569 13.2604C8.05327 13.5799 7.54673 13.5799 7.23431 13.2604L3.23431 9.16945C2.9219 8.84993 2.9219 8.33189 3.23431 8.01237C3.54673 7.69285 4.05327 7.69285 4.36569 8.01237L7.8 11.5247L13.6343 4.73964C13.9467 4.42012 14.4533 4.42012 14.7657 4.73964Z" fill="#2AAD5C"/></svg>';
-const clearSVG='<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3333 9.99999C18.3333 14.6024 14.6023 18.3333 9.99996 18.3333C5.39759 18.3333 1.66663 14.6024 1.66663 9.99999C1.66663 5.39762 5.39759 1.66666 9.99996 1.66666C14.6023 1.66666 18.3333 5.39762 18.3333 9.99999ZM7.24324 6.5067C7.03985 6.30331 6.71007 6.30331 6.50667 6.5067C6.30328 6.7101 6.30328 7.03988 6.50667 7.24327L9.26339 9.99999L6.50667 12.7567C6.30328 12.9601 6.30328 13.2899 6.50667 13.4933C6.71007 13.6967 7.03985 13.6967 7.24324 13.4933L9.99996 10.7366L12.7567 13.4933C12.9601 13.6967 13.2898 13.6967 13.4932 13.4933C13.6966 13.2899 13.6966 12.9601 13.4932 12.7567L10.7365 9.99999L13.4932 7.24327C13.6966 7.03988 13.6966 6.7101 13.4932 6.5067C13.2898 6.30331 12.9601 6.30331 12.7567 6.5067L9.99996 9.26342L7.24324 6.5067Z" fill="#DDDDDD"/></svg>';
-function hot(x,y,w,h,act,label,v=""){return '<button type="button" class="hit" data-act="'+act+'" data-val="'+escapeHTML(v)+'" aria-label="'+escapeHTML(label)+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px"></button>';}
-function screen(n){return '<img class="shot" alt="" src="'+asset(n)+'" draggable="false">';}
-function tile(x,y,label,icon,selected){return '<span class="tile '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px"><img alt="" src="'+asset(icon)+'"><span>'+label+'</span></span>';}
-function surveyChip(label,x,y,w,selected,multi,act){return '<button type="button" class="survey-chip'+(selected?' is-selected':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px" data-act="'+act+'" data-val="'+escapeHTML(label)+'" aria-label="'+escapeHTML(label)+' 선택" aria-pressed="'+String(selected)+'">'+(selected&&multi?check:'')+escapeHTML(label)+'</button>';}
-function bookChip(label,x,y,w,h,selected,act,value){return '<button type="button" class="booking-choice'+(selected?' is-selected':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px" data-act="'+act+'" data-val="'+escapeHTML(value)+'" aria-pressed="'+String(selected)+'">'+label+'</button>';}
-const revealY=[315,838,1038,1704,2068];
-function chatMarkup(){
- const y=s.whole?2068:revealY[s.r];
- const footer="result-0"+Math.min(6,s.r+1);
- let taps='<button class="chat-tap" style="left:36px;top:211px;width:268px;height:36px" data-act="detail" aria-label="건강검진 결과 자세히 보기"></button>';
- if(s.r>=2||s.whole)taps+='<button class="chat-tap" style="left:216px;top:906px;width:125px;height:48px" data-act="chat-next" aria-label="추천 영양성분 확인할래요"></button>';
- return '<div class="chat-scroller" id="chat-scroller"><div class="chat-progress" id="chat-progress" style="height:'+(y-56)+'px"><img alt="건강 상태에서 추천·주의 성분과 상담으로 이어지는 전체 추천결과" src="'+asset("result-figma-original")+'">'+taps+'</div></div>'+
- '<div class="chat-fixed-header"><img src="'+asset("result-06")+'"></div>'+
- '<div class="chat-fixed-footer"><img id="chat-footer-image" src="'+asset(footer)+'"></div>'+
- (s.r===4||s.whole?hot(20,619,320,56,"reserve","상담 예약하기"):"")+
- hot(4,4,48,48,"prev","이전 화면");
+var app=document.getElementById("app"),prev=document.getElementById("previous"),next=document.getElementById("following"),entire=document.getElementById("entire");
+var img=function(name){return "./assets/"+name+".png"};
+var escapeHtml=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var CHECK='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.7657 4.73964C15.0781 5.05916 15.0781 5.5772 14.7657 5.89672L8.36569 13.2604C8.05327 13.5799 7.54673 13.5799 7.23431 13.2604L3.23431 9.16945C2.9219 8.84993 2.9219 8.33189 3.23431 8.01237C3.54673 7.69285 4.05327 7.69285 4.36569 8.01237L7.8 11.5247L13.6343 4.73964C13.9467 4.42012 14.4533 4.42012 14.7657 4.73964Z" fill="#2AAD5C"/></svg>';
+var CLEAR='<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3333 9.99999C18.3333 14.6024 14.6023 18.3333 9.99996 18.3333C5.39759 18.3333 1.66663 14.6024 1.66663 9.99999C1.66663 5.39762 5.39759 1.66666 9.99996 1.66666C14.6023 1.66666 18.3333 5.39762 18.3333 9.99999ZM7.24324 6.5067C7.03985 6.30331 6.71007 6.30331 6.50667 6.5067C6.30328 6.7101 6.30328 7.03988 6.50667 7.24327L9.26339 9.99999L6.50667 12.7567C6.30328 12.9601 6.30328 13.2899 6.50667 13.4933C6.71007 13.6967 7.03985 13.6967 7.24324 13.4933L9.99996 10.7366L12.7567 13.4933C12.9601 13.6967 12.9601 13.2899 13.4932 13.4933C13.6966 13.2899 13.6966 12.9601 13.4932 12.7567L10.7365 9.99999L13.4932 7.24327C13.6966 7.03988 13.6966 6.7101 13.4932 6.5067C13.2898 6.30331 12.9601 6.30331 12.7567 6.5067L9.99996 9.26342L7.24324 6.5067Z" fill="#DDDDDD"/></svg>';
+function initial(){return {page:0,gender:"",age:"",digest:"",adverse:[],name:"",nameActive:false,chatCount:0,chatWaiting:false,chatReady:false,sheet:false,day:0,hour:"12시",minute:"30분",booked:null}}
+var state=initial(),revealTimer=null;
+var ageOptions=["19세 이하","20대","30대","40대","50대","60세 이상"];
+var adverseOptions=["없음","홍삼","종합비타민","오메가3","유산균","비타민C","비타민B","철분","밀크씨슬","마그네슘","칼슘","아연","루테인","비타민D","비타민A","엽산","코엔자임Q10","크롬","기타 영양제"];
+var days=[["25","오늘"],["26","내일"],["27","금"]],hours=["9시","10시","11시","12시","14시","15시","16시","17시"],minutes=["00분","10분","20분","30분","40분","50분"];
+var check=CHECK;
+function header(text,result){return '<div class="header'+(result?' is-result':'')+'"><button type="button" class="back" data-act="prev" aria-label="이전 화면">←</button><span class="header-title">'+text+'</span>'+(result?'<button class="close-head" data-act="exit-result" aria-label="닫기">×</button>':'')+'</div>'}
+function foot(text,act,disabled){return '<div class="footer'+(state.page===6?' chat-footer':'')+'"><button type="button" class="cta" data-act="'+(act||"next")+'"'+(disabled?' disabled':'')+'>'+text+'</button></div>'}
+function title(h,sub){return '<h2 class="title">'+h+'</h2>'+(sub?'<p class="subtitle">'+sub+'</p>':'')}
+function option(label,act,val,selected,multi){return '<button class="opt'+(selected?' is-active':'')+'" type="button" data-act="'+act+'" data-val="'+escapeHtml(val||label)+'" aria-pressed="'+String(!!selected)+'">'+(selected&&multi?CHECK:'')+escapeHtml(label)+'</button>'}
+function large(label,icon,act,selected){return '<button type="button" class="large-pick'+(selected?' is-active':'')+'" data-act="'+act+'" data-val="'+label+'" aria-pressed="'+String(selected)+'"><img alt="" src="'+img(icon)+'">'+label+'</button>'}
+function fieldScreen(){
+ var v=escapeHtml(state.name),selected=!!state.name;
+ return header("")+'<section class="surface">'+title("마지막으로 이름을 알려주세요","나만의 한 팩 영양제에 적어드려요.")+
+ '<div class="pack-field'+(selected?' has-text':'')+'" id="name-shell"><label for="pack-input">이름</label><input type="text" id="pack-input" maxlength="12" autocomplete="off" aria-label="팩 이름 입력" placeholder="이름" value="'+v+'"><button class="clear-name" type="button" data-act="clear-name" aria-label="이름 지우기">'+CLEAR+'</button></div>'+
+ '<div class="pack-card"><img class="pack-logo" alt="pillgram" src="'+img("pack-logo")+'"><p id="pack-name" class="pack-name">'+v+' 님</p><div class="pack-line"></div><div class="pack-ingredients">추천영양제 A<br>추천영양제 B<br>추천영양제 C</div><div class="pack-bottom"><span class="pack-badge">건강기능식품</span><span>권장섭취기간<br>YY-MM-DD</span></div></div></section>'+
+ foot("다음","next",!selected);
 }
-function scheduleChat(){
- clearTimeout(timer);
- if(s.p!==6||s.whole||s.detail)return;
- const current=s.r;
- if(current!==0&&current!==1&&current!==3)return;
- timer=setTimeout(function(){
-   if(s.p===6&&!s.detail&&!s.whole&&s.r===current)revealChat();
- },current===0?1700:current===1?1900:1500);
+function renderNormal(){
+ var p=state.page;
+ if(p===0)return header("")+'<section class="surface">'+title("나에게 맞는 영양성분을<br>찾아볼까요?","건강검진과 건강 설문을 바탕으로 필요한 정보를 살펴봅니다.")+'<p class="subtitle" style="margin-top:35px">시연용 예시 데이터를 사용합니다.</p></section>'+foot("설문 시작하기");
+ if(p===1)return header("")+'<section class="surface">'+title("성별을 알려주세요")+'<div class="two-picks">'+large("남성","icon-man","gender",state.gender==="남성")+large("여성","icon-woman","gender",state.gender==="여성")+'</div></section>'+foot("다음","next",!state.gender);
+ if(p===2)return header("")+'<section class="surface">'+title("나이를 알려주세요")+'<div class="options">'+ageOptions.map(function(v){return option(v,"age",v,state.age===v,true)}).join("")+'</div></section>'+foot("다음","next",!state.age);
+ if(p===3)return header("")+'<section class="surface">'+title("소화불량이 잦은 편인가요?","*배가 더부룩하거나 소화가 안되는 증상")+'<div class="two-picks">'+large("예","digest-yes","digest",state.digest==="예")+large("아니오","digest-no","digest",state.digest==="아니오")+'</div></section>'+foot("다음","next",!state.digest);
+ if(p===4)return header("")+'<section class="surface">'+title("불편한 증상을 경험한 영양제에<br>모두 체크해주세요","*알러지, 피부트러블, 위장장애, 속쓰림 등")+'<div class="options">'+adverseOptions.map(function(v){return option(v,"adverse",v,state.adverse.includes(v),true)}).join("")+'</div></section>'+foot("다음","next",!state.adverse.length);
+ if(p===5)return fieldScreen();
+ if(p===7)return bookingScreen();
+ if(p===8)return doneScreen();
+ return "";
 }
-function revealChat(){
- if(s.p!==6||s.detail||s.whole)return;
- if(s.r>=4){s.p=7;render();return;}
- const sc=el("chat-scroller"),clip=el("chat-progress");
- const nearBottom=!sc||sc.scrollHeight-sc.scrollTop-sc.clientHeight<115;
- s.r++;
- if(!sc||!clip){render();return;}
- clip.style.height=(revealY[s.r]-56)+"px";
- const footer=el("chat-footer-image");if(footer)footer.src=asset("result-0"+Math.min(6,s.r+1));
- if(s.r===4&&!el("chat-reserve")){
-   el("phone").insertAdjacentHTML("beforeend",'<div id="chat-reserve">'+hot(20,619,320,56,"reserve","상담 예약하기")+'</div>');
+function bot(inner){return '<div class="chat-message"><img class="bot-avatar" src="'+img("profile")+'" alt="필그램"><div class="bot-bubble">'+inner+'</div></div>'}
+function status(item,label,sym){return '<div class="status '+item+'"><span class="symbol">'+sym+'</span>'+label+'</div>'}
+function resultBlock(i){
+ if(i===0)return bot('<h3>'+escapeHtml(state.name||"필그램")+'님의 건강검진 결과예요.</h3><div class="statuses">'+status("danger","위험 5","!")+status("warning","주의 5","!")+status("good","정상 5","✓")+'</div><button type="button" class="detail-btn" data-act="open-sheet">자세히 보기</button>');
+ if(i===1){
+ var health=[["health-liver","간 건강",["간 해독과 세포 보호를 위한 관리가 필요해요","대사&해독 기능이 떨어져요"]],["health-stomach","위 건강",["식후에 위가 불편해 관리가 필요해요"]],["health-muscle","관절/근육",["관절을 많이 써요","젖산이 축적됐어요"]],["health-pressure","혈압 관리",["혈압 조절을 위해 안지오텐신 조절이 필요해요"]],["health-sugar","혈당 관리",["혈당 관리에 특별한 주의가 필요해요","혈당과 인슐린 균형 관리가 필요해요"]]];
+ return bot('<h3>결과를 바탕으로 현재 상태를 정리했어요.</h3><div class="condition-list">'+health.map(function(x){return '<div class="condition-item"><img src="'+img(x[0])+'" alt=""><div><strong>'+x[1]+'</strong>'+x[2].map(function(t){return '<p>· '+t+'</p>'}).join("")+'</div></div>'}).join("")+'</div>');
  }
- if(nearBottom)requestAnimationFrame(function(){sc.scrollTo({top:Math.max(0,sc.scrollHeight-sc.clientHeight),behavior:"smooth"});});
- scheduleChat();
+ if(i===2)return bot('<h3>추천 영양성분과 주의해야 할 영양성분을 확인해볼까요?</h3>');
+ if(i===3){
+ var caution=["녹차추출물","철분","크롬"],recommend=["유산균","마그네슘","비타민B","은행잎 추출물","비오틴","이노시톨","비타민D","셀레늄","쏘팔메토 옥타코사놀","엽산"];
+ var grouping=function(title,count,items,cls){return '<div class="grouped-ingredients"><div class="group-head"><span>'+title+'</span><small>'+count+'개</small></div><div class="ingredient-grid">'+items.map(function(x){return '<div class="ingredient '+(cls||"")+'">'+x+'</div>'}).join("")+'</div></div>'};
+ return bot('<h3>추천 & 주의해야 할 영양성분이에요.</h3>'+grouping("주의",3,caution,"caution")+grouping("추천",10,recommend,""));
+ }
+ if(i===4){
+ var tiles=[["약 복용 시<br>주의해야 하는","3개"],["흡수를<br>방해하는","2개"],["흡수를<br>도와주는","1개"],["섭취시간이<br>중요한","4개"]];
+ return bot('<h3>추천받은 성분 중 확인이 필요한 영양성분이 있어요. 상담을 통해서 알려드릴게요.</h3><div class="verify-box"><div class="verify-head">추천받은 10개 성분 중</div><div class="verify-grid">'+tiles.map(function(t){return '<div class="verify-tile">'+t[0]+'<strong>'+t[1]+'</strong></div>'}).join("")+'</div></div>');
+ }
+ return "";
+}
+function sheetHtml(){
+ var sections=[["신체",[["키","164cm",""],["몸무게","70kg",""],["BMI","23.9kg/m2","정상"]]],["혈압",[["혈압(최고/최저)","98/60mmHg","주의"]]],["혈당",[["공복혈당(FBS)","71mg/dl","정상"]]],["지질검사",[["총콜레스테롤","202mg/dl","정상"],["HDL콜레스테롤","60mg/dl","정상"],["LDL콜레스테롤","136mg/dl","정상"],["중성지방","32mg/dl","정상"]]],["간 기능",[["AST","24U/L","주의"],["ALT","24U/L","정상"],["감마지피티","24U/L","정상"]]],["신장 기능",[["요단백","음성","정상"],["혈청크레아티닌","71mg/dl","정상"],["신사구체여과율","0.9ml/min","주의"]]],["헤모글로빈",[["혈색소","12.6g/dl","정상"]]],["폐결핵, 흉부질환",[["폐결핵 흉부질환","정상","정상"]]]];
+ return '<div class="sheet-overlay" role="dialog" aria-modal="true" aria-label="건강검진 결과 상세"><div class="sheet"><div class="sheet-head"><span>건강검진 결과</span><button data-act="close-sheet" aria-label="건강검진 상세 닫기">×</button></div><div class="sheet-body"><p style="font-size:13px;color:#757575;margin:0">2025년 1월 · 시연용 예시 데이터</p><div class="statuses" style="margin:18px 0">'+status("danger","위험 5","!")+status("warning","주의 5","!")+status("good","정상 5","✓")+'</div>'+sections.map(function(group){return '<h4>'+group[0]+'</h4>'+group[1].map(function(x){return '<div class="sheet-row"><span>'+x[0]+'</span><span>'+x[1]+(x[2]?' <em>'+x[2]+'</em>':'')+'</span></div>'}).join("")}).join("")+'</div></div></div>';
+}
+function resultScreen(){return header("추천 결과",true)+'<section id="chat-body" class="chat-body" aria-live="polite"><div id="chat-stream"></div><div id="chat-prompt"></div></section>'+foot("상담 예약하기","book-start",!state.chatReady)+(state.sheet?sheetHtml():"");}
+function bookingScreen(){
+ var selected=state.day,hour=state.hour,minute=state.minute;
+ return header("상담예약")+'<section class="surface">'+title("상담 가능한<br>시간을 선택해주세요")+
+ '<div class="booking-month"><button type="button" aria-label="이전 월">‹</button><strong>2024.12</strong><button type="button" aria-label="다음 월">›</button></div>'+
+ '<div class="booking-days">'+days.map(function(d,i){return '<button type="button" data-act="booking-day" data-val="'+i+'" class="booking-day'+(selected===i?' is-active':'')+'" aria-pressed="'+String(selected===i)+'">'+d[0]+'<small>'+d[1]+'</small></button>'}).join("")+'</div>'+
+ '<div class="booking-caption">시간</div><div class="booking-slots">'+hours.map(function(h){return '<button type="button" data-act="booking-hour" data-val="'+h+'" class="booking-slot'+(hour===h?' is-active':'')+'" aria-pressed="'+String(hour===h)+'">'+h+'</button>'}).join("")+'</div>'+
+ '<div class="booking-caption">분</div><div class="booking-minutes">'+minutes.map(function(m){return '<button type="button" data-act="booking-minute" data-val="'+m+'" class="booking-slot'+(minute===m?' is-active':'')+'" aria-pressed="'+String(minute===m)+'">'+m+'</button>'}).join("")+'</div></section>'+
+ foot((selected===0?"오늘":days[selected][0]+"일")+" "+hour+" "+minute+"으로 예약하기","reserve");
+}
+function doneScreen(){
+ var day=state.booked?state.booked.day:"",time=state.booked?state.booked.time:"";
+ return header("예약 완료")+'<section class="surface"><div class="booking-finish"><div class="booking-check">✓</div><h2>상담이 예약됐어요</h2><p>예약 일정에 맞춰 전문 상담사가 전화 드릴게요.</p><div class="booking-details"><div class="booking-detail"><small>예약 날짜</small><strong>'+escapeHtml(day)+'</strong></div><div class="booking-detail"><small>예약 시간</small><strong>'+escapeHtml(time)+'</strong></div></div></div></section><div class="footer-actions"><button type="button" data-act="booking-change">예약 변경하기</button><button type="button" data-act="reset">홈으로 가기</button></div>';
+}
+function stopChat(){if(revealTimer){clearTimeout(revealTimer);revealTimer=null}}
+function appendChat(index){
+ if(state.page!==6||state.sheet||index!==state.chatCount||index>4)return;
+ var stream=document.getElementById("chat-stream"),sc=document.getElementById("chat-body");if(!stream||!sc)return;
+ var oldBottom=sc.scrollHeight-sc.scrollTop-sc.clientHeight<110;
+ stream.insertAdjacentHTML("beforeend",resultBlock(index));
+ state.chatCount=index+1;
+ if(index===2){document.getElementById("chat-prompt").innerHTML='<div class="user-choice"><button type="button" data-act="confirm-results">확인할래요</button></div>';state.chatWaiting=true;}
+ if(index===4){state.chatReady=true;var button=app.querySelector(".cta");if(button)button.disabled=false;}
+ if(oldBottom||index===0)requestAnimationFrame(function(){sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"})});
+ if(index===0||index===1||index===3){stopChat();revealTimer=setTimeout(function(){appendChat(index+1)},index===0?1000:1200)}
+}
+function enterResult(){
+ if(state.page!==6||state.sheet)return;
+ if(!state.chatStarted){state.chatStarted=true;stopChat();revealTimer=setTimeout(function(){appendChat(0)},350)}
 }
 function render(){
- clearTimeout(timer);
- const p=s.p;let bg="",over="",act="";
- el("prev").disabled=p===0&&!s.detail;el("next").disabled=p===8&&!s.detail;
- el("whole").style.display=p===6?"block":"none";
- el("whole").textContent=s.whole?"채팅형 순차 보기":"추천결과지 전체 보기";
- if(s.detail==="modal"){
-  bg=screen("detail-modal");
-  act=hot(0,115,360,598,"detail-full","건강검진 전체 상세 스크롤")+hot(305,66,50,47,"close","닫기");
- }else if(s.detail==="full"){
-  bg='<div class="detail-scroll"><img src="'+asset("detail-full")+'" alt="건강검진 전체 상세"></div>';
-  act=hot(0,0,54,56,"close","건강검진 결과로 돌아가기");
- }else if(p===6){
-  bg=chatMarkup();
- }else{
-  bg=screen(pictures[p]);
-  if(p===0)act+=hot(20,619,320,56,"next","설문 시작하기");
-  if(p===1){
-   act+=hot(20,154,156,98,"gender","남성 선택","남성")+hot(184,154,156,98,"gender","여성 선택","여성")+hot(20,619,320,56,"next","다음");
-   if(s.gender!=="남성")over+=tile(20,154,"남성","icon-man",false)+tile(184,154,"여성","icon-woman",true);
-  }
-  if(p===2){
-   ages.forEach(function(a){over+=surveyChip(a[0],a[1],a[2],a[3],s.age===a[0],false,"age");});
-   act+=hot(20,619,320,56,"next","다음");
-  }
-  if(p===3){
-   act+=hot(20,184,156,98,"digest","예 선택","예")+hot(184,184,156,98,"digest","아니오 선택","아니오")+hot(20,619,320,56,"next","다음");
-   if(s.digest!=="예")over+=tile(20,184,"예","icon-yes",false)+tile(184,184,"아니오","icon-no",true);
-  }
-  if(p===4){
-   mult.forEach(function(a){over+=surveyChip(a[0],a[1],a[2],a[3],s.multi.includes(a[0]),true,"multi");});
-   over+=surveyChip("기타 영양제",20,570,320,s.multi.includes("기타 영양제"),true,"multi");
-   act+=hot(20,619,320,56,"next","다음");
-  }
-  if(p===5){
-   act+=hot(20,619,320,56,"next","추천 결과로 이동");
-   over+='<div id="pack-field" class="pack-entry'+(s.name?" has-value":"")+(s.nameFocused?" is-focused":"")+'"><label for="pack-input">이름</label><input id="pack-input" maxlength="12" aria-label="팩 이름 입력" placeholder="이름" autocomplete="off" value="'+escapeHTML(s.name)+'"><button class="clear-name" data-act="clear-name" aria-label="입력한 이름 지우기">'+clearSVG+'</button></div><span id="name-preview" class="name-preview-new">'+escapeHTML(s.name)+'님</span>';
-  }
-  if(p===7){
-   act+=hot(4,4,48,48,"prev","이전 화면");
-   days.forEach(function(z,i){const x=20+i*72;over+=bookChip(z[0]+"<small>"+z[1]+"</small>",x,209,60,64,s.day===i,"day",String(i));});
-   hours.forEach(function(t,i){const x=21+i%4*83,y=346+Math.floor(i/4)*52;over+=bookChip(t+"시",x,y,70,40,s.hour===t,"hour",t);});
-   mins.forEach(function(t,i){const x=i<4?21+i*83:20+(i-4)*83,y=i<4?511:563;over+=bookChip(t+"분",x,y,70,40,s.minute===t,"minute",t);});
-   over+='<div class="booking-cta">'+(s.day===0?"오늘":days[s.day][0]+"일")+' '+s.hour+'시 '+s.minute+'분으로 예약하기</div>';
-   act+=hot(20,619,320,56,"book","상담 예약 확정");
-  }
-  if(p===8){
-   act+=hot(4,4,48,48,"prev","이전 화면")+hot(20,619,120,56,"change","예약 변경하기")+hot(148,619,192,56,"reset","처음으로 가기");
-   if(s.booking){
-    over+='<span class="done-value" style="left:48px;width:107px">'+escapeHTML(s.booking.date)+'</span><span class="done-value" style="left:202px;width:112px">'+escapeHTML(s.booking.time)+'</span>';
-   }
-  }
-  if(p>0&&p<6)act+=hot(4,4,48,48,"prev","이전 화면");
- }
- el("phone").innerHTML=bg+over+act;
- if(p===6&&!s.detail){
-   const sc=el("chat-scroller");
-   if(sc){sc.scrollTop=s.chatScroll||0;sc.addEventListener("scroll",function(){s.chatScroll=sc.scrollTop;},{passive:true});}
-   if(!s.chatStarted){s.chatStarted=true; scheduleChat();}
+ stopChat();
+ prev.disabled=state.page===0&&!state.sheet;next.disabled=state.page===8&&!state.sheet;
+ entire.style.display=state.page===6?"block":"none";
+ app.innerHTML=state.page===6?resultScreen():renderNormal();
+ if(state.page===6){
+   var stream=document.getElementById("chat-stream");
+   if(stream){for(var i=0;i<state.chatCount;i++)stream.insertAdjacentHTML("beforeend",resultBlock(i));}
+   if(state.chatWaiting)document.getElementById("chat-prompt").innerHTML='<div class="user-choice"><button type="button" data-act="confirm-results">확인할래요</button></div>';
+   var button=app.querySelector(".cta");if(button)button.disabled=!state.chatReady;
+   enterResult();
  }
 }
-function next(){
- if(s.detail){if(s.detail==="modal")s.detail="full";else s.detail="";render();return;}
- if(s.p===6){if(s.whole||s.r>=4){s.p=7;s.whole=false;render();}else revealChat();return;}
- if(s.p===5&&!s.name.trim()){el("pack-input")?.focus();return;}
- if(s.p<8){s.p++;if(s.p===6){s.r=0;s.whole=false;s.chatStarted=false;s.chatScroll=0;}render();}
+function goNext(){
+ if(state.sheet){state.sheet=false;render();return;}
+ if(state.page===6){if(!state.chatReady){showAllChat();return;}state.page=7;render();return;}
+ if(state.page===5&&!state.name.trim())return;
+ if(state.page<8){state.page++;render();}
 }
-function prev(){
- if(s.detail){s.detail="";render();return;}
- if(s.p===6){if(s.whole){s.whole=false;render();return;}if(s.r>0){s.r--;s.chatScroll=Math.min(s.chatScroll,revealY[s.r]-56);render();return;}s.p=5;}
- else if(s.p>0){s.p--;if(s.p===6){s.r=4;s.chatStarted=true;s.chatScroll=revealY[4]-56;}}
- render();
+function goPrevious(){
+ if(state.sheet){state.sheet=false;render();return;}
+ if(state.page>0){stopChat();state.page--;render();}
 }
-document.addEventListener("click",function(e){
- const btn=e.target.closest("button[data-act]");if(!btn||btn.disabled)return;
- const a=btn.dataset.act,v=btn.dataset.val;
- if(a==="next"){next();return;}if(a==="prev"){prev();return;}
- if(a==="whole"){s.whole=!s.whole;s.chatScroll=0;render();return;}
- if(a==="gender"||a==="age"||a==="digest"){s[a]=v;render();return;}
- if(a==="multi"){if(v==="없음")s.multi=["없음"];else{s.multi=s.multi.filter(function(x){return x!=="없음"});s.multi=s.multi.includes(v)?s.multi.filter(function(x){return x!==v}):s.multi.concat(v);}render();return;}
- if(a==="clear-name"){s.name="";const inp=el("pack-input");if(inp){inp.value="";s.nameFocused=true;inp.focus();el("name-preview").textContent="님";el("pack-field").classList.remove("has-value");}return;}
- if(a==="chat-next"){if(!s.whole)revealChat();return;}
- if(a==="detail"){const sc=el("chat-scroller");if(sc)s.chatScroll=sc.scrollTop;s.detail="modal";render();return;}
- if(a==="detail-full"){s.detail="full";render();return;}
- if(a==="close"){s.detail="";render();return;}
- if(a==="reserve"){s.p=7;s.whole=false;render();return;}
- if(a==="day"){s.day=Number(v);render();return;}
- if(a==="hour"){s.hour=v;render();return;}
- if(a==="minute"){s.minute=v;render();return;}
- if(a==="book"){s.booking={date:days[s.day][0]+"일 ("+days[s.day][1]+")",time:s.hour+"시 "+s.minute+"분"};s.p=8;render();return;}
- if(a==="change"){s.p=7;render();return;}
- if(a==="reset"){s=initial();render();return;}
+function showAllChat(){
+ if(state.page!==6||state.sheet)return;
+ stopChat();
+ var stream=document.getElementById("chat-stream"),sc=document.getElementById("chat-body");if(!stream||!sc)return;
+ for(var i=state.chatCount;i<=4;i++)stream.insertAdjacentHTML("beforeend",resultBlock(i));
+ state.chatCount=5;state.chatWaiting=false;state.chatReady=true;
+ document.getElementById("chat-prompt").innerHTML="";
+ var c=app.querySelector(".cta");if(c)c.disabled=false;
+ sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"});
+}
+app.addEventListener("click",function(e){
+ var b=e.target.closest("button[data-act]");if(!b||b.disabled)return;
+ var a=b.dataset.act,v=b.dataset.val;
+ if(a==="prev"){goPrevious();return;}
+ if(a==="next"){goNext();return;}
+ if(a==="gender"||a==="age"||a==="digest"){state[a]=v;render();return;}
+ if(a==="adverse"){if(v==="없음")state.adverse=["없음"];else{state.adverse=state.adverse.filter(function(x){return x!=="없음"});state.adverse=state.adverse.includes(v)?state.adverse.filter(function(x){return x!==v}):state.adverse.concat(v);}render();return;}
+ if(a==="clear-name"){state.name="";var inp=document.getElementById("pack-input");if(inp){inp.value="";document.getElementById("name-shell").classList.remove("has-text");document.getElementById("pack-name").textContent=" 님";inp.focus();}return;}
+ if(a==="open-sheet"){state.sheet=true;stopChat();app.insertAdjacentHTML("beforeend",sheetHtml());return;}
+ if(a==="close-sheet"){state.sheet=false;var sheet=app.querySelector(".sheet-overlay");if(sheet)sheet.remove();enterResult();return;}
+ if(a==="confirm-results"){state.chatWaiting=false;var target=document.getElementById("chat-prompt");if(target)target.innerHTML='<div class="user-choice"><span>확인할래요</span></div>';stopChat();revealTimer=setTimeout(function(){appendChat(3)},450);return;}
+ if(a==="book-start"){if(state.chatReady){state.page=7;render();}return;}
+ if(a==="booking-day"){state.day=Number(v);render();return;}
+ if(a==="booking-hour"){state.hour=v;render();return;}
+ if(a==="booking-minute"){state.minute=v;render();return;}
+ if(a==="reserve"){state.booked={day:days[state.day][0]+"일 ("+days[state.day][1]+")",time:state.hour+" "+state.minute};state.page=8;render();return;}
+ if(a==="booking-change"){state.page=7;render();return;}
+ if(a==="reset"){stopChat();state=initial();render();return;}
+ if(a==="exit-result"){state.page=5;render();return;}
 });
-document.addEventListener("focusin",function(e){if(e.target.id==="pack-input"){s.nameFocused=true;el("pack-field")?.classList.add("is-focused");}});
-document.addEventListener("focusout",function(e){if(e.target.id==="pack-input"){s.nameFocused=false;el("pack-field")?.classList.remove("is-focused");}});
-document.addEventListener("input",function(e){if(e.target.id==="pack-input"){s.name=e.target.value;el("name-preview").textContent=s.name+"님";el("pack-field").classList.toggle("has-value",!!s.name);}});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&s.detail){s.detail="";render();return;}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")prev();if(e.key==="ArrowRight")next();});
+app.addEventListener("input",function(e){if(e.target.id==="pack-input"){state.name=e.target.value;var shell=document.getElementById("name-shell");if(shell)shell.classList.toggle("has-text",!!state.name);var name=document.getElementById("pack-name");if(name)name.textContent=(state.name||"")+" 님";}});
+prev.addEventListener("click",goPrevious);next.addEventListener("click",goNext);entire.addEventListener("click",showAllChat);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.sheet){state.sheet=false;app.querySelector(".sheet-overlay")?.remove();enterResult();return;}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")goPrevious();if(e.key==="ArrowRight")goNext();});
 render();
-
-</script></body></html>
+</script>
+</body>
+</html>
