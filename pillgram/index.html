@@ -60,7 +60,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2AAD5C;outline-offse
 .pack-ingredients{font-size:12px;line-height:1.5;color:#757575}
 .pack-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;font-size:8px;color:#333}
 .pack-badge{padding:5px 8px;background:#222;border-radius:3px;color:#fff;font-size:8px}
-.chat-body{position:absolute;top:56px;bottom:132px;left:0;right:0;overflow-y:auto;background:#F8F9FA;padding:24px 20px 24px;z-index:1}
+.chat-body{position:absolute;top:56px;bottom:0;left:0;right:0;overflow-y:auto;background:#F8F9FA;padding:24px 20px 24px;z-index:1}
 .chat-message{margin-bottom:12px;animation:arrive .24s ease-out}
 @keyframes arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .bot-avatar{display:block;width:32px;height:32px;object-fit:contain;margin-bottom:12px}
@@ -160,6 +160,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2AAD5C;outline-offse
 .consult-panel__tile strong{color:#228A4A;font-size:24px;font-weight:700;line-height:1.4;margin-top:4px}
 .consult-panel__tile strong small{font-size:14px;font-weight:500;line-height:1.3}
 .booking-month{justify-content:flex-start}
+.chat-body.with-footer{bottom:132px}
 </style>
 </head>
 <body>
@@ -174,7 +175,7 @@ var img=function(name){return "./assets/"+name+".png"};
 var escapeHtml=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
 var CHECK='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.7657 4.73964C15.0781 5.05916 15.0781 5.5772 14.7657 5.89672L8.36569 13.2604C8.05327 13.5799 7.54673 13.5799 7.23431 13.2604L3.23431 9.16945C2.9219 8.84993 2.9219 8.33189 3.23431 8.01237C3.54673 7.69285 4.05327 7.69285 4.36569 8.01237L7.8 11.5247L13.6343 4.73964C13.9467 4.42012 14.4533 4.42012 14.7657 4.73964Z" fill="#2AAD5C"/></svg>';
 var CLEAR='<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3333 9.99999C18.3333 14.6024 14.6023 18.3333 9.99996 18.3333C5.39759 18.3333 1.66663 14.6024 1.66663 9.99999C1.66663 5.39762 5.39759 1.66666 9.99996 1.66666C14.6023 1.66666 18.3333 5.39762 18.3333 9.99999ZM7.24324 6.5067C7.03985 6.30331 6.71007 6.30331 6.50667 6.5067C6.30328 6.7101 6.30328 7.03988 6.50667 7.24327L9.26339 9.99999L6.50667 12.7567C6.30328 12.9601 6.30328 13.2899 6.50667 13.4933C6.71007 13.6967 7.03985 13.6967 7.24324 13.4933L9.99996 10.7366L12.7567 13.4933C12.9601 13.6967 12.9601 13.2899 13.4932 13.4933C13.6966 13.2899 13.6966 12.9601 13.4932 12.7567L10.7365 9.99999L13.4932 7.24327C13.6966 7.03988 13.6966 6.7101 13.4932 6.5067C13.2898 6.30331 12.9601 6.30331 12.7567 6.5067L9.99996 9.26342L7.24324 6.5067Z" fill="#DDDDDD"/></svg>';
-function initial(){return {page:0,gender:"",age:"",digest:"",adverse:[],name:"",nameActive:false,chatCount:0,chatWaiting:false,chatReady:false,sheet:false,day:0,hour:"12시",minute:"30분",booked:null}}
+function initial(){return {page:0,gender:"",age:"",digest:"",adverse:[],name:"",nameActive:false,chatCount:0,chatWaiting:false,chatConfirmed:false,chatReady:false,sheet:false,day:0,hour:"12시",minute:"30분",booked:null}}
 var state=initial(),revealTimer=null;
 var ageOptions=["19세 이하","20대","30대","40대","50대","60세 이상"];
 var adverseOptions=["없음","홍삼","종합비타민","오메가3","유산균","비타민C","비타민B","철분","밀크씨슬","마그네슘","칼슘","아연","루테인","비타민D","비타민A","엽산","코엔자임Q10","크롬","기타 영양제"];
@@ -228,7 +229,7 @@ function sheetHtml(){
  var sections=[["신체",[["키","164cm",""],["몸무게","70kg",""],["BMI","23.9kg/m2","정상"]]],["혈압",[["혈압(최고/최저)","98/60mmHg","주의"]]],["혈당",[["공복혈당(FBS)","71mg/dl","정상"]]],["지질검사",[["총콜레스테롤","202mg/dl","정상"],["HDL콜레스테롤","60mg/dl","정상"],["LDL콜레스테롤","136mg/dl","정상"],["중성지방","32mg/dl","정상"]]],["간 기능",[["AST","24U/L","주의"],["ALT","24U/L","정상"],["감마지피티","24U/L","정상"]]],["신장 기능",[["요단백","음성","정상"],["혈청크레아티닌","71mg/dl","정상"],["신사구체여과율","0.9ml/min","주의"]]],["헤모글로빈",[["혈색소","12.6g/dl","정상"]]],["폐결핵, 흉부질환",[["폐결핵 흉부질환","정상","정상"]]]];
  return '<div class="sheet-overlay" role="dialog" aria-modal="true" aria-label="건강검진 결과 상세"><div class="sheet"><div class="sheet-head"><span>건강검진 결과</span><button data-act="close-sheet" aria-label="건강검진 상세 닫기">×</button></div><div class="sheet-body"><p style="font-size:13px;color:#757575;margin:0">2025년 1월 · 시연용 예시 데이터</p><div class="statuses" style="margin:18px 0">'+status("danger","위험 5","!")+status("warning","주의 5","!")+status("good","정상 5","✓")+'</div>'+sections.map(function(group){return '<h4>'+group[0]+'</h4>'+group[1].map(function(x){return '<div class="sheet-row"><span>'+x[0]+'</span><span>'+x[1]+(x[2]?' <em>'+x[2]+'</em>':'')+'</span></div>'}).join("")}).join("")+'</div></div></div>';
 }
-function resultScreen(){return header("추천 결과",true)+'<section id="chat-body" class="chat-body" aria-live="polite"><div id="chat-stream"></div><div id="chat-prompt"></div></section>'+foot("상담 예약하기","book-start",!state.chatReady)+(state.sheet?sheetHtml():"");}
+function resultScreen(){return header("추천 결과",true)+'<section id="chat-body" class="chat-body'+(state.chatWaiting||state.chatReady?' with-footer':'')+'" aria-live="polite"><div id="chat-stream"></div><div id="chat-prompt"></div></section>'+(state.chatWaiting?foot("확인할래요","confirm-results"):(state.chatReady?foot("상담 예약하기","book-start"):''))+(state.sheet?sheetHtml():"");}
 function bookingScreen(){
  var selected=state.day,hour=state.hour,minute=state.minute;
  return header("상담예약")+'<section class="surface">'+title("상담 가능한<br>시간을 선택해주세요")+
@@ -249,8 +250,8 @@ function appendChat(index){
  var oldBottom=sc.scrollHeight-sc.scrollTop-sc.clientHeight<110;
  stream.insertAdjacentHTML("beforeend",resultBlock(index));
  state.chatCount=index+1;
- if(index===2){document.getElementById("chat-prompt").innerHTML='<div class="user-choice"><button type="button" data-act="confirm-results">확인할래요</button></div>';state.chatWaiting=true;}
- if(index===4){state.chatReady=true;var button=app.querySelector(".cta");if(button)button.disabled=false;}
+ if(index===2){state.chatWaiting=true;sc.classList.add("with-footer");app.insertAdjacentHTML("beforeend",foot("확인할래요","confirm-results"));}
+ if(index===4){state.chatReady=true;sc.classList.add("with-footer");app.insertAdjacentHTML("beforeend",foot("상담 예약하기","book-start"));}
  if(oldBottom||index===0)requestAnimationFrame(function(){sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"})});
  if(index===0||index===1||index===3){stopChat();revealTimer=setTimeout(function(){appendChat(index+1)},index===0?1000:1200)}
 }
@@ -268,9 +269,8 @@ function render(){
  app.innerHTML=state.page===6?resultScreen():renderNormal();
  if(state.page===6){
    var stream=document.getElementById("chat-stream");
-   if(stream){for(var i=0;i<state.chatCount;i++)stream.insertAdjacentHTML("beforeend",resultBlock(i));}
-   if(state.chatWaiting)document.getElementById("chat-prompt").innerHTML='<div class="user-choice"><button type="button" data-act="confirm-results">확인할래요</button></div>';
-   var button=app.querySelector(".cta");if(button)button.disabled=!state.chatReady;
+   if(stream){for(var i=0;i<state.chatCount;i++){stream.insertAdjacentHTML("beforeend",resultBlock(i));if(i===2&&state.chatConfirmed)stream.insertAdjacentHTML("beforeend",'<div class="user-choice"><span>확인할래요</span></div>');}}
+   var button=app.querySelector(".cta");if(button)button.disabled=false;
    enterResult();
  }
 }
@@ -288,11 +288,14 @@ function showAllChat(){
  if(state.page!==6||state.sheet)return;
  stopChat();
  var stream=document.getElementById("chat-stream"),sc=document.getElementById("chat-body");if(!stream||!sc)return;
- for(var i=state.chatCount;i<=4;i++)stream.insertAdjacentHTML("beforeend",resultBlock(i));
- state.chatCount=5;state.chatWaiting=false;state.chatReady=true;
+ var needsUserBubble=!state.chatConfirmed;
+ if(needsUserBubble&&state.chatCount>=3)stream.insertAdjacentHTML("beforeend",'<div class="user-choice"><span>확인할래요</span></div>');
+ for(var i=state.chatCount;i<=4;i++){stream.insertAdjacentHTML("beforeend",resultBlock(i));if(needsUserBubble&&i===2)stream.insertAdjacentHTML("beforeend",'<div class="user-choice"><span>확인할래요</span></div>');}
+ state.chatCount=5;state.chatWaiting=false;state.chatConfirmed=true;state.chatReady=true;
  document.getElementById("chat-prompt").innerHTML="";
- var c=app.querySelector(".cta");if(c)c.disabled=false;
- sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"});
+ var oldFooter=app.querySelector(".footer.chat-footer");if(oldFooter)oldFooter.remove();
+ app.insertAdjacentHTML("beforeend",foot("상담 예약하기","book-start"));
+ sc.classList.add("with-footer");sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"});
 }
 app.addEventListener("click",function(e){
  var b=e.target.closest("button[data-act]");if(!b||b.disabled)return;
@@ -304,7 +307,7 @@ app.addEventListener("click",function(e){
  if(a==="clear-name"){state.name="";var inp=document.getElementById("pack-input");if(inp){inp.value="";document.getElementById("name-shell").classList.remove("has-text");document.getElementById("pack-name").textContent=" 님";var button=app.querySelector(".footer .cta");if(button)button.disabled=true;inp.focus();}return;}
  if(a==="open-sheet"){state.sheet=true;stopChat();app.insertAdjacentHTML("beforeend",sheetHtml());return;}
  if(a==="close-sheet"){state.sheet=false;var sheet=app.querySelector(".sheet-overlay");if(sheet)sheet.remove();enterResult();return;}
- if(a==="confirm-results"){state.chatWaiting=false;var target=document.getElementById("chat-prompt");if(target)target.innerHTML='<div class="user-choice"><span>확인할래요</span></div>';stopChat();revealTimer=setTimeout(function(){appendChat(3)},450);return;}
+ if(a==="confirm-results"){state.chatWaiting=false;state.chatConfirmed=true;var footer=app.querySelector(".footer.chat-footer");if(footer)footer.remove();var sc=document.getElementById("chat-body"),stream=document.getElementById("chat-stream");if(sc)sc.classList.remove("with-footer");if(stream){stream.insertAdjacentHTML("beforeend",'<div class="user-choice"><span>확인할래요</span></div>');if(sc)sc.scrollTo({top:sc.scrollHeight-sc.clientHeight,behavior:"smooth"});}stopChat();revealTimer=setTimeout(function(){appendChat(3)},450);return;}
  if(a==="book-start"){if(state.chatReady){state.page=7;render();}return;}
  if(a==="booking-day"){state.day=Number(v);render();return;}
  if(a==="booking-hour"){state.hour=v;render();return;}
