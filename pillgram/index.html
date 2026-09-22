@@ -223,7 +223,10 @@ function appendChat(index){
 }
 function enterResult(){
  if(state.page!==6||state.sheet)return;
- if(!state.chatStarted){state.chatStarted=true;stopChat();revealTimer=setTimeout(function(){appendChat(0)},350)}
+ if(!state.chatStarted){state.chatStarted=true;stopChat();revealTimer=setTimeout(function(){appendChat(0)},350);return;}
+ if(!state.chatWaiting&&!state.chatReady&&(state.chatCount===1||state.chatCount===2||state.chatCount===4)){
+   stopChat();revealTimer=setTimeout(function(){appendChat(state.chatCount)},750);
+ }
 }
 function render(){
  stopChat();
