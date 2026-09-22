@@ -28,42 +28,119 @@
 .close{position:absolute;z-index:5;top:9px;left:8px;width:42px;height:42px;cursor:pointer;border:0;background:transparent;color:transparent}
 @media(max-width:620px){.stage{gap:8px;padding:5px}.outside{width:92px;flex-basis:92px;gap:8px}.outside h1{font-size:15px;margin-bottom:10px}.outside button{text-align:center;padding:6px 4px;font-size:12px}.phone{zoom:min(1,calc((100vw - 112px)/360))}}
 @media(max-height:740px) and (min-width:621px){.phone{zoom:calc((100dvh - 24px)/715)}}
+
+
+/* Interactive controls reproduce the approved Figma component states. */
+.survey-chip{position:absolute;z-index:5;display:inline-flex;height:48px;padding:8px 16px;justify-content:center;align-items:center;gap:8px;border:1px solid transparent;border-radius:6px;background:#F8F9FA;color:#222;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:16px;font-style:normal;font-weight:500;line-height:140%;letter-spacing:-.32px;white-space:nowrap;cursor:pointer}
+.survey-chip.is-selected{border-color:#2AAD5C;background:#F1FBF5;color:#2AAD5C}
+.survey-chip svg{width:18px;height:18px;flex:0 0 18px}
+.survey-chip:focus-visible,.booking-choice:focus-visible,.pack-entry input:focus-visible{outline:2px solid #2AAD5C;outline-offset:2px}
+.pack-entry{position:absolute;z-index:6;left:20px;top:184px;width:320px;height:56px;display:flex;align-items:center;padding:0 46px 0 16px;background:#fff;border:1px solid #DDD;border-radius:8px}
+.pack-entry.is-focused,.pack-entry.has-value{border-color:#4CAF50;align-items:stretch;padding-top:0}
+.pack-entry label{position:absolute;left:16px;top:5px;color:#AAA;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:13px;font-style:normal;font-weight:400;line-height:130%;letter-spacing:-.13px;display:none}
+.pack-entry.is-focused label,.pack-entry.has-value label{display:block}
+.pack-entry input{display:block;width:100%;height:100%;min-width:0;padding:0;border:0;background:transparent;color:#222;font-size:16px;font-style:normal;font-weight:400;line-height:140%;letter-spacing:-.32px;outline:none}
+.pack-entry.is-focused input,.pack-entry.has-value input{padding-top:14px}
+.pack-entry input::placeholder{color:#AAA;opacity:1}
+.pack-entry .clear-name{position:absolute;right:14px;top:17px;width:20px;height:20px;display:none;border:none;background:none;padding:0;z-index:2}
+.pack-entry.has-value .clear-name{display:block}
+.pack-entry .clear-name svg{width:20px;height:20px}
+.name-preview-new{position:absolute;z-index:4;left:106px;top:327px;width:122px;height:24px;overflow:hidden;background:#fff;color:#222;font-size:14px;font-weight:700;line-height:24px;white-space:nowrap}
+.booking-choice{position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;white-space:nowrap;border:1px solid transparent;border-radius:8px;background:#F8F9FA;color:#757575;font-size:14px;font-weight:500;line-height:1.4;cursor:pointer}
+.booking-choice.is-selected{border-color:#2AAD5C;background:#F1FBF5;color:#2AAD5C}
+.booking-choice small{font-size:12px}
+.booking-cta{z-index:3}
+.done-value{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;height:34px;top:319px;background:#F8F9FA;color:#222;font-size:16px;font-weight:700;line-height:1.4;white-space:nowrap;border:0}
+.chat-scroller{position:absolute;left:0;right:0;top:56px;bottom:132px;overflow-y:auto;background:#F8F9FA;overscroll-behavior:contain;scrollbar-width:thin}
+.chat-progress{position:relative;width:360px;overflow:hidden;transition:height 280ms ease-out}
+.chat-progress img{position:absolute;left:0;top:-56px;width:360px;height:2068px;max-width:none;pointer-events:none;user-select:none}
+.chat-tap{position:absolute;z-index:3;border:0;padding:0;background:transparent;cursor:pointer;color:transparent;font-size:0}
+.chat-fixed-header,.chat-fixed-footer{position:absolute;left:0;width:360px;overflow:hidden;z-index:3;pointer-events:none}
+.chat-fixed-header{top:0;height:56px}
+.chat-fixed-footer{bottom:0;height:132px}
+.chat-fixed-header img,.chat-fixed-footer img{position:absolute;left:0;width:360px;height:715px;max-width:none}
+.chat-fixed-header img{top:0}
+.chat-fixed-footer img{top:-583px}
+
 </style></head><body>
 <div class="stage"><aside class="outside"><h1>추천결과지 프로토타입</h1><button id="prev" data-act="prev">← 이전 화면</button><button id="next" data-act="next">다음 화면 →</button><button id="whole" data-act="whole">추천결과지 전체 보기</button></aside><main id="phone" class="phone" aria-label="필그램 인터랙티브 프로토타입"></main></div>
 <script>
+
 "use strict";
 const el=id=>document.getElementById(id),asset=n=>"./assets/"+n+".png";
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function initial(){return {p:0,gender:"남성",age:"19세 이하",digest:"예",multi:["없음"],edited:false,name:"필그램",r:0,whole:false,detail:"",day:0,hour:"12",minute:"30",booking:null}}
+function initial(){return {p:0,gender:"남성",age:"19세 이하",digest:"예",multi:["없음"],edited:false,name:"필그램",nameFocused:false,r:0,whole:false,chatStarted:false,chatScroll:0,detail:"",day:0,hour:"12",minute:"30",booking:null};}
 let s=initial(),timer;
 const pictures=["survey-start","gender","age","digest","multi","pack","","booking","booked"];
-const ages=[["19세 이하",20,156,113],["20대",141,156,64],["30대",213,156,68],["40대",20,212,66],["50대",94,212,65],["60세 이상",167,212,99]];
+const ages=[["19세 이하",20,156,112],["20대",140,156,64],["30대",212,156,67],["40대",20,212,65],["50대",93,212,65],["60세 이상",166,212,101]];
 const mult=[["없음",20,220,64],["홍삼",88,220,64],["종합비타민",156,220,120],["오메가3",20,276,67],["유산균",91,276,76],["비타민C",171,276,105],["비타민C ",20,332,68],["비타민B",92,332,87],["철분",183,332,68],["밀크씨슬",20,388,79],["마그네슘",103,388,83],["칼슘",190,388,72],["아연",266,388,74],["루테인",20,444,75],["비타민D",99,444,82],["비타민A",185,444,88],["엽산",20,500,60],["코엔자임Q10",84,500,113],["크롬",201,500,74]];
 const days=[["25","오늘"],["26","내일"],["27","금"]],hours=["9","10","11","12","14","15","16","17"],mins=["00","10","20","30","40","50"];
-function hot(x,y,w,h,act,label,v=""){return '<button type="button" class="hit" data-act="'+act+'" data-val="'+escapeHTML(v)+'" aria-label="'+escapeHTML(label)+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px"></button>'}
-function screen(n){return '<img class="shot" alt="" src="'+asset(n)+'" draggable="false">'}
-function tile(x,y,text,icon,selected){return '<span class="tile '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px"><img alt="" src="'+asset(icon)+'"><span>'+text+'</span></span>'}
-function chip(text,x,y,w,h,selected,extra=""){return '<span class="chip '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;'+extra+'">'+text+'</span>'}
-function bookingchip(text,x,y,w,h,on,cls=""){return '<span class="booking-chip '+cls+' '+(on?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px">'+text+'</span>'}
+const check='<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.7657 4.73964C15.0781 5.05916 15.0781 5.5772 14.7657 5.89672L8.36569 13.2604C8.05327 13.5799 7.54673 13.5799 7.23431 13.2604L3.23431 9.16945C2.9219 8.84993 2.9219 8.33189 3.23431 8.01237C3.54673 7.69285 4.05327 7.69285 4.36569 8.01237L7.8 11.5247L13.6343 4.73964C13.9467 4.42012 14.4533 4.42012 14.7657 4.73964Z" fill="#2AAD5C"/></svg>';
+const clearSVG='<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3333 9.99999C18.3333 14.6024 14.6023 18.3333 9.99996 18.3333C5.39759 18.3333 1.66663 14.6024 1.66663 9.99999C1.66663 5.39762 5.39759 1.66666 9.99996 1.66666C14.6023 1.66666 18.3333 5.39762 18.3333 9.99999ZM7.24324 6.5067C7.03985 6.30331 6.71007 6.30331 6.50667 6.5067C6.30328 6.7101 6.30328 7.03988 6.50667 7.24327L9.26339 9.99999L6.50667 12.7567C6.30328 12.9601 6.30328 13.2899 6.50667 13.4933C6.71007 13.6967 7.03985 13.6967 7.24324 13.4933L9.99996 10.7366L12.7567 13.4933C12.9601 13.6967 13.2898 13.6967 13.4932 13.4933C13.6966 13.2899 13.6966 12.9601 13.4932 12.7567L10.7365 9.99999L13.4932 7.24327C13.6966 7.03988 13.6966 6.7101 13.4932 6.5067C13.2898 6.30331 12.9601 6.30331 12.7567 6.5067L9.99996 9.26342L7.24324 6.5067Z" fill="#DDDDDD"/></svg>';
+function hot(x,y,w,h,act,label,v=""){return '<button type="button" class="hit" data-act="'+act+'" data-val="'+escapeHTML(v)+'" aria-label="'+escapeHTML(label)+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px"></button>';}
+function screen(n){return '<img class="shot" alt="" src="'+asset(n)+'" draggable="false">';}
+function tile(x,y,label,icon,selected){return '<span class="tile '+(selected?"selected":"plain")+'" style="left:'+x+'px;top:'+y+'px"><img alt="" src="'+asset(icon)+'"><span>'+label+'</span></span>';}
+function surveyChip(label,x,y,w,selected,multi,act){return '<button type="button" class="survey-chip'+(selected?' is-selected':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px" data-act="'+act+'" data-val="'+escapeHTML(label)+'" aria-label="'+escapeHTML(label)+' 선택" aria-pressed="'+String(selected)+'">'+(selected&&multi?check:'')+escapeHTML(label)+'</button>';}
+function bookChip(label,x,y,w,h,selected,act,value){return '<button type="button" class="booking-choice'+(selected?' is-selected':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px" data-act="'+act+'" data-val="'+escapeHTML(value)+'" aria-pressed="'+String(selected)+'">'+label+'</button>';}
+const revealY=[315,838,1038,1704,2068];
+function chatMarkup(){
+ const y=s.whole?2068:revealY[s.r];
+ const footer="result-0"+Math.min(6,s.r+1);
+ let taps='<button class="chat-tap" style="left:36px;top:211px;width:268px;height:36px" data-act="detail" aria-label="건강검진 결과 자세히 보기"></button>';
+ if(s.r>=2||s.whole)taps+='<button class="chat-tap" style="left:216px;top:906px;width:125px;height:48px" data-act="chat-next" aria-label="추천 영양성분 확인할래요"></button>';
+ return '<div class="chat-scroller" id="chat-scroller"><div class="chat-progress" id="chat-progress" style="height:'+(y-56)+'px"><img alt="건강 상태에서 추천·주의 성분과 상담으로 이어지는 전체 추천결과" src="'+asset("result-figma-original")+'">'+taps+'</div></div>'+
+ '<div class="chat-fixed-header"><img src="'+asset("result-06")+'"></div>'+
+ '<div class="chat-fixed-footer"><img id="chat-footer-image" src="'+asset(footer)+'"></div>'+
+ (s.r===4||s.whole?hot(20,619,320,56,"reserve","상담 예약하기"):"")+
+ hot(4,4,48,48,"prev","이전 화면");
+}
+function scheduleChat(){
+ clearTimeout(timer);
+ if(s.p!==6||s.whole||s.detail)return;
+ const current=s.r;
+ if(current!==0&&current!==1&&current!==3)return;
+ timer=setTimeout(function(){
+   if(s.p===6&&!s.detail&&!s.whole&&s.r===current)revealChat();
+ },current===0?1700:current===1?1900:1500);
+}
+function revealChat(){
+ if(s.p!==6||s.detail||s.whole)return;
+ if(s.r>=4){s.p=7;render();return;}
+ const sc=el("chat-scroller"),clip=el("chat-progress");
+ const nearBottom=!sc||sc.scrollHeight-sc.scrollTop-sc.clientHeight<115;
+ s.r++;
+ if(!sc||!clip){render();return;}
+ clip.style.height=(revealY[s.r]-56)+"px";
+ const footer=el("chat-footer-image");if(footer)footer.src=asset("result-0"+Math.min(6,s.r+1));
+ if(s.r===4&&!el("chat-reserve")){
+   el("phone").insertAdjacentHTML("beforeend",'<div id="chat-reserve">'+hot(20,619,320,56,"reserve","상담 예약하기")+'</div>');
+ }
+ if(nearBottom)requestAnimationFrame(function(){sc.scrollTo({top:Math.max(0,sc.scrollHeight-sc.clientHeight),behavior:"smooth"});});
+ scheduleChat();
+}
 function render(){
- clearTimeout(timer);let bg="",over="",act="";let p=s.p;
+ clearTimeout(timer);
+ const p=s.p;let bg="",over="",act="";
  el("prev").disabled=p===0&&!s.detail;el("next").disabled=p===8&&!s.detail;
- el("whole").style.display=p===6?"block":"none";el("whole").textContent=s.whole?"채팅형 순차 보기":"추천결과지 전체 보기";
- if(s.detail==="modal"){bg=screen("detail-modal");act=hot(0,115,360,598,"detail-full","건강검진 전체 상세 스크롤")+hot(305,66,50,47,"close","닫기");}
- else if(s.detail==="full"){bg='<div class="detail-scroll"><img src="'+asset("detail-full")+'" alt="건강검진 전체 상세"></div>';act=hot(0,0,54,56,"close","건강검진 결과로 돌아가기");}
- else if(p===6&&s.whole){
-  bg='<div class="scroll" id="full-scroll"><img src="'+asset("result-full")+'" alt="건강 상태부터 추천·주의 영양성분, 상담까지의 전체 추천결과지">'+hot(36,204,268,32,"detail","건강검진 결과 자세히 보기")+'</div><div class="crop" style="top:0;height:56px"><img src="'+asset("result-06")+'" style="top:0"></div><div class="crop" style="bottom:0;height:132px"><img src="'+asset("result-06")+'" style="top:-583px"></div>';
-  act=hot(20,619,320,56,"reserve","상담 예약하기")+hot(4,4,48,48,"prev","이전 화면");
-  if(s.name!=="필그램")over='<span class="paint" style="left:36px;top:140px;width:268px;height:22px;background:white;font-size:14px">'+escapeHTML(s.name)+'님의 건강검진 결과예요.</span>';
+ el("whole").style.display=p===6?"block":"none";
+ el("whole").textContent=s.whole?"채팅형 순차 보기":"추천결과지 전체 보기";
+ if(s.detail==="modal"){
+  bg=screen("detail-modal");
+  act=hot(0,115,360,598,"detail-full","건강검진 전체 상세 스크롤")+hot(305,66,50,47,"close","닫기");
+ }else if(s.detail==="full"){
+  bg='<div class="detail-scroll"><img src="'+asset("detail-full")+'" alt="건강검진 전체 상세"></div>';
+  act=hot(0,0,54,56,"close","건강검진 결과로 돌아가기");
+ }else if(p===6){
+  bg=chatMarkup();
  }else{
-  bg=screen(p===6?"result-0"+(s.r+1):pictures[p]);
-  if(p===0){act+=hot(20,619,320,56,"next","설문 시작하기");}
+  bg=screen(pictures[p]);
+  if(p===0)act+=hot(20,619,320,56,"next","설문 시작하기");
   if(p===1){
    act+=hot(20,154,156,98,"gender","남성 선택","남성")+hot(184,154,156,98,"gender","여성 선택","여성")+hot(20,619,320,56,"next","다음");
    if(s.gender!=="남성")over+=tile(20,154,"남성","icon-man",false)+tile(184,154,"여성","icon-woman",true);
   }
   if(p===2){
-   ages.forEach(z=>{let [text,x,y,w]=z;act+=hot(x,y,w,40,"age",text+" 선택",text);if(s.age!=="19세 이하")over+=chip(text,x,y,w,40,s.age===text)});
+   ages.forEach(function(a){over+=surveyChip(a[0],a[1],a[2],a[3],s.age===a[0],false,"age");});
    act+=hot(20,619,320,56,"next","다음");
   }
   if(p===3){
@@ -71,62 +148,73 @@ function render(){
    if(s.digest!=="예")over+=tile(20,184,"예","icon-yes",false)+tile(184,184,"아니오","icon-no",true);
   }
   if(p===4){
-   mult.forEach(z=>{let [text,x,y,w]=z;act+=hot(x,y,w,40,"multi",text+" 선택",text);if(s.edited)over+=chip(text,x,y,w,40,s.multi.includes(text));});
-   act+=hot(20,570,320,48,"multi","기타 영양제","기타 영양제")+hot(20,619,320,56,"next","다음");
-   if(s.edited&&s.multi.includes("기타 영양제"))over+=chip("기타 영양제",20,570,320,48,true,"justify-content:flex-start;padding-left:16px");
+   mult.forEach(function(a){over+=surveyChip(a[0],a[1],a[2],a[3],s.multi.includes(a[0]),true,"multi");});
+   over+=surveyChip("기타 영양제",20,570,320,s.multi.includes("기타 영양제"),true,"multi");
+   act+=hot(20,619,320,56,"next","다음");
   }
-  if(p===5){act+=hot(20,619,320,56,"next","추천 결과로 이동");over+='<input id="pack-input" class="name-input" maxlength="12" aria-label="팩 이름 입력" value="'+escapeHTML(s.name)+'"><span id="name-preview" class="name-preview">'+escapeHTML(s.name)+'님</span>';}
-  if(p===6){
-   act+=hot(4,4,48,48,"prev","이전 화면");
-   if(s.r===0)act+=hot(36,260,268,32,"detail","건강검진 결과 자세히 보기");
-   if(s.r===2)act+=hot(20,621,320,56,"result-next","확인할래요");
-   if(s.r===3)act+=hot(220,524,120,56,"result-next","확인할래요");
-   if(s.r===5)act+=hot(20,619,320,56,"reserve","상담 예약하기");
-   if(s.name!=="필그램"&&s.r===0)over+='<span class="paint" style="left:36px;top:140px;width:268px;height:24px;background:white;font-size:14px">'+escapeHTML(s.name)+'님의 건강검진 결과예요.</span>';
+  if(p===5){
+   act+=hot(20,619,320,56,"next","추천 결과로 이동");
+   over+='<div id="pack-field" class="pack-entry'+(s.name?" has-value":"")+(s.nameFocused?" is-focused":"")+'"><label for="pack-input">이름</label><input id="pack-input" maxlength="12" aria-label="팩 이름 입력" placeholder="이름" autocomplete="off" value="'+escapeHTML(s.name)+'"><button class="clear-name" data-act="clear-name" aria-label="입력한 이름 지우기">'+clearSVG+'</button></div><span id="name-preview" class="name-preview-new">'+escapeHTML(s.name)+'님</span>';
   }
   if(p===7){
    act+=hot(4,4,48,48,"prev","이전 화면");
-   days.forEach((z,i)=>{let x=20+i*72;act+=hot(x,209,60,64,"day",z[0]+"일 선택",String(i));if(s.day!==0)over+=bookingchip(z[0]+"<small>"+z[1]+"</small>",x,209,60,64,s.day===i,"day")});
-   hours.forEach((t,i)=>{let x=21+i%4*83,y=346+Math.floor(i/4)*52;act+=hot(x,y,70,40,"hour",t+"시 선택",t);if(s.hour!=="12")over+=bookingchip(t+"시",x,y,70,40,s.hour===t)});
-   mins.forEach((t,i)=>{let x=i<4?21+i*83:20+(i-4)*83,y=i<4?511:563;act+=hot(x,y,70,40,"minute",t+"분 선택",t);if(s.minute!=="30")over+=bookingchip(t+"분",x,y,70,40,s.minute===t)});
-   if(s.day!==0||s.hour!=="12"||s.minute!=="30")over+='<div class="booking-cta">'+(s.day===0?"오늘":days[s.day][0]+"일")+' '+s.hour+'시 '+s.minute+'분으로 예약하기</div>';
+   days.forEach(function(z,i){const x=20+i*72;over+=bookChip(z[0]+"<small>"+z[1]+"</small>",x,209,60,64,s.day===i,"day",String(i));});
+   hours.forEach(function(t,i){const x=21+i%4*83,y=346+Math.floor(i/4)*52;over+=bookChip(t+"시",x,y,70,40,s.hour===t,"hour",t);});
+   mins.forEach(function(t,i){const x=i<4?21+i*83:20+(i-4)*83,y=i<4?511:563;over+=bookChip(t+"분",x,y,70,40,s.minute===t,"minute",t);});
+   over+='<div class="booking-cta">'+(s.day===0?"오늘":days[s.day][0]+"일")+' '+s.hour+'시 '+s.minute+'분으로 예약하기</div>';
    act+=hot(20,619,320,56,"book","상담 예약 확정");
   }
   if(p===8){
    act+=hot(4,4,48,48,"prev","이전 화면")+hot(20,619,120,56,"change","예약 변경하기")+hot(148,619,192,56,"reset","처음으로 가기");
-   if(s.booking)over+='<div class="booking-summary"><span>'+escapeHTML(s.booking.date)+'</span><span>'+escapeHTML(s.booking.time)+'</span></div>';
+   if(s.booking){
+    over+='<span class="done-value" style="left:48px;width:107px">'+escapeHTML(s.booking.date)+'</span><span class="done-value" style="left:202px;width:112px">'+escapeHTML(s.booking.time)+'</span>';
+   }
   }
   if(p>0&&p<6)act+=hot(4,4,48,48,"prev","이전 화면");
  }
  el("phone").innerHTML=bg+over+act;
- const inp=el("pack-input");if(inp)inp.addEventListener("input",e=>{s.name=e.target.value;el("name-preview").textContent=s.name+"님"});
- if(p===6&&!s.whole&&!s.detail&&[0,1,3,4].includes(s.r)){const at=s.r;timer=setTimeout(()=>{if(s.p===6&&!s.whole&&!s.detail&&s.r===at){s.r++;render()}},at===0?1700:at===1?1900:at===3?850:1700);}
+ if(p===6&&!s.detail){
+   const sc=el("chat-scroller");
+   if(sc){sc.scrollTop=s.chatScroll||0;sc.addEventListener("scroll",function(){s.chatScroll=sc.scrollTop;},{passive:true});}
+   if(!s.chatStarted){s.chatStarted=true; scheduleChat();}
+ }
 }
-function next(external=false){
- if(s.detail){if(s.detail==="modal")s.detail="full";else s.detail="";render();return}
- if(s.p===6){if(s.whole){s.p=7;s.whole=false}else if(s.r<5)s.r++;else s.p=7;render();return}
- if(s.p===5&&!s.name.trim()&&!external){el("pack-input").focus();return}
- s.p=Math.min(8,s.p+1);render()
+function next(){
+ if(s.detail){if(s.detail==="modal")s.detail="full";else s.detail="";render();return;}
+ if(s.p===6){if(s.whole||s.r>=4){s.p=7;s.whole=false;render();}else revealChat();return;}
+ if(s.p===5&&!s.name.trim()){el("pack-input")?.focus();return;}
+ if(s.p<8){s.p++;if(s.p===6){s.r=0;s.whole=false;s.chatStarted=false;s.chatScroll=0;}render();}
 }
 function prev(){
- if(s.detail){s.detail="";render();return}
- if(s.p===6){if(s.whole){s.whole=false;s.r=5}else if(s.r>0)s.r--;else s.p=5}
- else if(s.p>0){s.p--;if(s.p===6)s.r=5}
- render()
+ if(s.detail){s.detail="";render();return;}
+ if(s.p===6){if(s.whole){s.whole=false;render();return;}if(s.r>0){s.r--;s.chatScroll=Math.min(s.chatScroll,revealY[s.r]-56);render();return;}s.p=5;}
+ else if(s.p>0){s.p--;if(s.p===6){s.r=4;s.chatStarted=true;s.chatScroll=revealY[4]-56;}}
+ render();
 }
-document.addEventListener("click",e=>{const b=e.target.closest("button[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.val;
- if(a==="next"){next(b.id==="next");return}if(a==="prev"){prev();return}
- if(a==="whole"){s.whole=!s.whole;s.r=5;render();return}
- if(["gender","age","digest"].includes(a)){s[a]=v;render();return}
- if(a==="multi"){s.edited=true;if(v==="없음")s.multi=["없음"];else{s.multi=s.multi.filter(x=>x!=="없음");s.multi=s.multi.includes(v)?s.multi.filter(x=>x!==v):s.multi.concat(v)}render();return}
- if(a==="result-next"){s.r=Math.min(5,s.r+1);render();return}
- if(a==="detail"){s.detail="modal";render();return}if(a==="detail-full"){s.detail="full";render();return}
- if(a==="close"){s.detail="";render();return}
- if(a==="reserve"){s.p=7;s.whole=false;render();return}
- if(a==="day"){s.day=Number(v);render();return}if(a==="hour"){s.hour=v;render();return}if(a==="minute"){s.minute=v;render();return}
- if(a==="book"){s.booking={date:days[s.day][0]+"일 ("+days[s.day][1]+")",time:s.hour+"시 "+s.minute+"분"};s.p=8;render();return}
- if(a==="change"){s.p=7;render();return}if(a==="reset"){s=initial();render();return}
+document.addEventListener("click",function(e){
+ const btn=e.target.closest("button[data-act]");if(!btn||btn.disabled)return;
+ const a=btn.dataset.act,v=btn.dataset.val;
+ if(a==="next"){next();return;}if(a==="prev"){prev();return;}
+ if(a==="whole"){s.whole=!s.whole;s.chatScroll=0;render();return;}
+ if(a==="gender"||a==="age"||a==="digest"){s[a]=v;render();return;}
+ if(a==="multi"){if(v==="없음")s.multi=["없음"];else{s.multi=s.multi.filter(function(x){return x!=="없음"});s.multi=s.multi.includes(v)?s.multi.filter(function(x){return x!==v}):s.multi.concat(v);}render();return;}
+ if(a==="clear-name"){s.name="";const inp=el("pack-input");if(inp){inp.value="";s.nameFocused=true;inp.focus();el("name-preview").textContent="님";el("pack-field").classList.remove("has-value");}return;}
+ if(a==="chat-next"){if(!s.whole)revealChat();return;}
+ if(a==="detail"){const sc=el("chat-scroller");if(sc)s.chatScroll=sc.scrollTop;s.detail="modal";render();return;}
+ if(a==="detail-full"){s.detail="full";render();return;}
+ if(a==="close"){s.detail="";render();return;}
+ if(a==="reserve"){s.p=7;s.whole=false;render();return;}
+ if(a==="day"){s.day=Number(v);render();return;}
+ if(a==="hour"){s.hour=v;render();return;}
+ if(a==="minute"){s.minute=v;render();return;}
+ if(a==="book"){s.booking={date:days[s.day][0]+"일 ("+days[s.day][1]+")",time:s.hour+"시 "+s.minute+"분"};s.p=8;render();return;}
+ if(a==="change"){s.p=7;render();return;}
+ if(a==="reset"){s=initial();render();return;}
 });
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&s.detail){s.detail="";render();return}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")prev();if(e.key==="ArrowRight")next(true)});
+document.addEventListener("focusin",function(e){if(e.target.id==="pack-input"){s.nameFocused=true;el("pack-field")?.classList.add("is-focused");}});
+document.addEventListener("focusout",function(e){if(e.target.id==="pack-input"){s.nameFocused=false;el("pack-field")?.classList.remove("is-focused");}});
+document.addEventListener("input",function(e){if(e.target.id==="pack-input"){s.name=e.target.value;el("name-preview").textContent=s.name+"님";el("pack-field").classList.toggle("has-value",!!s.name);}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&s.detail){s.detail="";render();return;}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")prev();if(e.key==="ArrowRight")next();});
 render();
+
 </script></body></html>
