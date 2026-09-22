@@ -127,6 +127,39 @@ button:focus-visible,input:focus-visible{outline:2px solid #2AAD5C;outline-offse
 @media(max-width:650px){.stage{gap:8px;padding:5px;justify-content:center}.outside{width:92px;flex-basis:92px;gap:8px}.outside h1{font-size:15px;line-height:1.4;margin:0 0 8px}.outside button{font-size:12px;text-align:center;padding:8px 5px}.phone{zoom:min(1,calc((100vw - 115px)/360));}}
 @media(max-height:740px) and (min-width:651px){.phone{zoom:calc((100dvh - 20px)/715)}}
 @media(prefers-reduced-motion:reduce){.chat-message{animation:none}*{scroll-behavior:auto!important}}
+
+/* Figma-specific corrections: survey opening and the two explicitly requested chat cards. */
+.survey-opening{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.survey-opening svg{display:block;width:72px;height:72px;flex:0 0 72px}
+.survey-opening .opening-desc{margin:0;color:#757575;font-size:16px;font-weight:400;line-height:1.4;letter-spacing:-.32px}
+.survey-opening .title{margin-top:-8px}
+.bot-bubble.ingredient-card{padding:16px;border-radius:2px 20px 20px 20px;box-shadow:0 1px 5px #0000000a,0 0 5px #0000000a,0 0 1px #0000000a}
+.bot-bubble.consult-card{padding:15px 16px;border-radius:12px;box-shadow:0 1px 5px #0000000a,0 0 5px #0000000a,0 0 1px #0000000a}
+.nutrient-panels{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.nutrient-panel{width:268px;overflow:hidden;background:#F8F9FA;border-radius:8px}
+.nutrient-panel__head{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:14px;font-weight:700;line-height:1.3;letter-spacing:-.28px}
+.nutrient-panel__head span{display:inline-flex;align-items:center;justify-content:center;min-height:20px;border-radius:4px;padding:2px 6px;font-size:12px;font-weight:500;letter-spacing:-.12px;background:#fff}
+.nutrient-panel--caution .nutrient-panel__head{background:#FEE6E6;color:#F60909}
+.nutrient-panel--caution .nutrient-panel__head span{background:#F8F9FA}
+.nutrient-panel--recommend .nutrient-panel__head{background:#E8F5E9;color:#228A4A}
+.nutrient-panel--recommend .nutrient-panel__head span{color:#2AAD5C}
+.nutrient-panel__body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px 0}
+.nutrient-panel--caution .nutrient-panel__body{grid-auto-rows:52px}
+.nutrient-panel--recommend .nutrient-panel__body{grid-auto-rows:62px;padding:6px 0}
+.nutrient-panel__item{min-width:0;display:flex;align-items:center;gap:4px;padding:0 9px;font-size:16px;font-weight:500;line-height:1.4;letter-spacing:-.32px}
+.nutrient-panel__item:nth-child(odd){border-right:1px solid #E2E3E5}
+.nutrient-panel__item:nth-child(n+3){border-top:1px solid #E2E3E5}
+.nutrient-panel__item img{width:37px;height:34px;object-fit:contain;flex:0 0 37px}
+.nutrient-panel__item span{min-width:0;overflow-wrap:break-word}
+.consult-panel{width:268px;height:330px;margin-top:16px;padding:16px 12px;background:#F1FBF5;border-radius:8px}
+.consult-panel__head{width:140px;height:34px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border:1px solid #AADEBE;border-radius:53px;background:#F1FBF5;color:#228A4A;font-size:14px;font-weight:700;line-height:1.3;letter-spacing:-.28px;white-space:nowrap}
+.consult-panel__grid{display:grid;grid-template-columns:repeat(2,118px);grid-template-rows:repeat(2,122px);gap:8px}
+.consult-panel__tile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:12px;background:#fff;border-radius:8px;text-align:center}
+.consult-panel__tile img{width:20px;height:20px;object-fit:contain}
+.consult-panel__tile span{margin-top:6px;font-size:14px;font-weight:700;line-height:1.3;letter-spacing:-.28px;white-space:nowrap}
+.consult-panel__tile strong{color:#228A4A;font-size:24px;font-weight:700;line-height:1.4;margin-top:4px}
+.consult-panel__tile strong small{font-size:14px;font-weight:500;line-height:1.3}
+.booking-month{justify-content:flex-start}
 </style>
 </head>
 <body>
@@ -161,7 +194,7 @@ function fieldScreen(){
 }
 function renderNormal(){
  var p=state.page;
- if(p===0)return header("")+'<section class="surface">'+title("나에게 맞는 영양성분을<br>찾아볼까요?","건강검진과 건강 설문을 바탕으로 필요한 정보를 살펴봅니다.")+'<p class="subtitle" style="margin-top:35px">시연용 예시 데이터를 사용합니다.</p></section>'+foot("설문 시작하기");
+ if(p===0)return header("")+'<section class="surface"><div class="survey-opening"><svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="16" y="7" width="44" height="54" rx="4.17391" fill="#B3E1B4"/><rect x="12" y="11" width="44" height="54" rx="4.17391" fill="#D8EED9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M28.6897 20.2904C29.0896 20.6913 29.105 21.3576 28.7241 21.7786L22.7816 28.3466C21.9934 29.2178 20.6732 29.2178 19.8851 28.3466L17.2759 25.4628C16.895 25.0418 16.9104 24.3755 17.3103 23.9746C17.7103 23.5737 18.3433 23.5899 18.7241 24.0109L21.3333 26.8947L27.2759 20.3267C27.6567 19.9057 28.2897 19.8895 28.6897 20.2904Z" fill="#2AAD5C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M28.6897 33.2904C29.0896 33.6913 29.105 34.3576 28.7241 34.7786L22.7816 41.3466C21.9934 42.2178 20.6732 42.2178 19.8851 41.3466L17.2759 38.4628C16.895 38.0418 16.9104 37.3755 17.3103 36.9746C17.7103 36.5737 18.3433 36.5899 18.7241 37.0109L21.3333 39.8947L27.2759 33.3267C27.6567 32.9057 28.2897 32.8895 28.6897 33.2904Z" fill="#2AAD5C"/><path fill-rule="evenodd" clip-rule="evenodd" d="M28.6897 46.2904C29.0896 46.6913 29.105 47.3576 28.7241 47.7786L22.7816 54.3466C21.9934 55.2178 20.6732 55.2178 19.8851 54.3466L17.2759 51.4628C16.895 51.0418 16.9104 50.3755 17.3103 49.9746C17.7103 49.5737 18.3433 49.5899 18.7241 50.0109L21.3333 52.8947L27.2759 46.3267C27.6567 45.9057 28.2897 45.8895 28.6897 46.2904Z" fill="#2AAD5C"/><rect x="35" y="23" width="14" height="2" rx="1" fill="#2AAD5C"/><rect x="35" y="37" width="14" height="2" rx="1" fill="#2AAD5C"/><rect x="35" y="50" width="14" height="2" rx="1" fill="#2AAD5C"/></svg><p class="opening-desc">건강검진결과로는 알 수 없는</p><h2 class="title">생활습관과 식습관도<br>몇 가지만 알려주세요</h2></div></section>'+foot("다음");
  if(p===1)return header("")+'<section class="surface">'+title("성별을 알려주세요")+'<div class="two-picks">'+large("남성","icon-man","gender",state.gender==="남성")+large("여성","icon-woman","gender",state.gender==="여성")+'</div></section>'+foot("다음","next",!state.gender);
  if(p===2)return header("")+'<section class="surface">'+title("나이를 알려주세요")+'<div class="options">'+ageOptions.map(function(v){return option(v,"age",v,state.age===v,true)}).join("")+'</div></section>'+foot("다음","next",!state.age);
  if(p===3)return header("")+'<section class="surface">'+title("소화불량이 잦은 편인가요?","*배가 더부룩하거나 소화가 안되는 증상")+'<div class="two-picks">'+large("예","digest-yes","digest",state.digest==="예")+large("아니오","digest-no","digest",state.digest==="아니오")+'</div></section>'+foot("다음","next",!state.digest);
@@ -171,7 +204,7 @@ function renderNormal(){
  if(p===8)return doneScreen();
  return "";
 }
-function bot(inner){return '<div class="chat-message"><img class="bot-avatar" src="'+img("profile")+'" alt="필그램"><div class="bot-bubble">'+inner+'</div></div>'}
+function bot(inner,cardClass){return '<div class="chat-message"><img class="bot-avatar" src="'+img("profile")+'" alt="필그램"><div class="bot-bubble'+(cardClass?" "+cardClass:"")+'">'+inner+'</div></div>'}
 function status(item,label,sym){return '<div class="status '+item+'"><span class="symbol">'+sym+'</span>'+label+'</div>'}
 function resultBlock(i){
  if(i===0)return bot('<h3>'+escapeHtml(state.name||"필그램")+'님의 건강검진 결과예요.</h3><div class="statuses">'+status("danger","위험 5","!")+status("warning","주의 5","!")+status("good","정상 5","✓")+'</div><button type="button" class="detail-btn" data-act="open-sheet">자세히 보기</button>');
@@ -182,12 +215,12 @@ function resultBlock(i){
  if(i===2)return bot('<h3>추천 영양성분과 주의해야 할 영양성분을 확인해볼까요?</h3>');
  if(i===3){
  var caution=["녹차추출물","철분","크롬"],recommend=["유산균","마그네슘","비타민B","은행잎 추출물","비오틴","이노시톨","비타민D","셀레늄","쏘팔메토 옥타코사놀","엽산"];
- var grouping=function(title,count,items,cls){return '<div class="grouped-ingredients"><div class="group-head"><span>'+title+'</span><small>'+count+'개</small></div><div class="ingredient-grid">'+items.map(function(x){return '<div class="ingredient '+(cls||"")+'">'+x+'</div>'}).join("")+'</div></div>'};
- return bot('<h3>추천 & 주의해야 할 영양성분이에요.</h3>'+grouping("주의",3,caution,"caution")+grouping("추천",10,recommend,""));
+ var grouping=function(label,items,kind){return '<div class="nutrient-panel nutrient-panel--'+kind+'"><div class="nutrient-panel__head"><strong>'+label+'</strong><span>'+items.length+'개</span></div><div class="nutrient-panel__body">'+items.map(function(x,j){return '<div class="nutrient-panel__item"><img src="'+img("ingredient-"+kind+"-"+j)+'" alt=""><span>'+x+'</span></div>'}).join("")+'</div></div>'};
+ return bot('<h3>추천 & 주의해야 할 영양성분이에요.</h3><div class="nutrient-panels">'+grouping("주의",caution,"caution")+grouping("추천",recommend,"recommend")+'</div>',"ingredient-card");
  }
  if(i===4){
- var tiles=[["약 복용 시<br>주의해야 하는","3개"],["흡수를<br>방해하는","2개"],["흡수를<br>도와주는","1개"],["섭취시간이<br>중요한","4개"]];
- return bot('<h3>추천받은 성분 중 확인이 필요한 영양성분이 있어요. 상담을 통해서 알려드릴게요.</h3><div class="verify-box"><div class="verify-head">추천받은 10개 성분 중</div><div class="verify-grid">'+tiles.map(function(t){return '<div class="verify-tile">'+t[0]+'<strong>'+t[1]+'</strong></div>'}).join("")+'</div></div>');
+ var tiles=[["약 복용 시<br>주의해야 하는","3","verify-0"],["흡수를<br>방해하는","2","verify-1"],["흡수를<br>도와주는","1","verify-2"],["섭취시간이<br>중요한","4","verify-3"]];
+ return bot('<h3>추천받은 성분 중 확인이 필요한 영양성분이 있어요. 상담을 통해서 알려드릴게요.</h3><div class="consult-panel"><div class="consult-panel__head">추천받은 10개 성분 중</div><div class="consult-panel__grid">'+tiles.map(function(t){return '<div class="consult-panel__tile"><img src="'+img(t[2])+'" alt=""><span>'+t[0]+'</span><strong>'+t[1]+'<small>개</small></strong></div>'}).join("")+'</div></div>',"consult-card");
  }
  return "";
 }
@@ -199,7 +232,7 @@ function resultScreen(){return header("추천 결과",true)+'<section id="chat-b
 function bookingScreen(){
  var selected=state.day,hour=state.hour,minute=state.minute;
  return header("상담예약")+'<section class="surface">'+title("상담 가능한<br>시간을 선택해주세요")+
- '<div class="booking-month"><button type="button" aria-label="이전 월">‹</button><strong>2024.12</strong><button type="button" aria-label="다음 월">›</button></div>'+
+ '<div class="booking-month"><strong>2024.12</strong></div>'+
  '<div class="booking-days">'+days.map(function(d,i){return '<button type="button" data-act="booking-day" data-val="'+i+'" class="booking-day'+(selected===i?' is-active':'')+'" aria-pressed="'+String(selected===i)+'">'+d[0]+'<small>'+d[1]+'</small></button>'}).join("")+'</div>'+
  '<div class="booking-caption">시간</div><div class="booking-slots">'+hours.map(function(h){return '<button type="button" data-act="booking-hour" data-val="'+h+'" class="booking-slot'+(hour===h?' is-active':'')+'" aria-pressed="'+String(hour===h)+'">'+h+'</button>'}).join("")+'</div>'+
  '<div class="booking-caption">분</div><div class="booking-minutes">'+minutes.map(function(m){return '<button type="button" data-act="booking-minute" data-val="'+m+'" class="booking-slot'+(minute===m?' is-active':'')+'" aria-pressed="'+String(minute===m)+'">'+m+'</button>'}).join("")+'</div></section>'+
@@ -268,7 +301,7 @@ app.addEventListener("click",function(e){
  if(a==="next"){goNext();return;}
  if(a==="gender"||a==="age"||a==="digest"){state[a]=v;render();return;}
  if(a==="adverse"){if(v==="없음")state.adverse=["없음"];else{state.adverse=state.adverse.filter(function(x){return x!=="없음"});state.adverse=state.adverse.includes(v)?state.adverse.filter(function(x){return x!==v}):state.adverse.concat(v);}render();return;}
- if(a==="clear-name"){state.name="";var inp=document.getElementById("pack-input");if(inp){inp.value="";document.getElementById("name-shell").classList.remove("has-text");document.getElementById("pack-name").textContent=" 님";inp.focus();}return;}
+ if(a==="clear-name"){state.name="";var inp=document.getElementById("pack-input");if(inp){inp.value="";document.getElementById("name-shell").classList.remove("has-text");document.getElementById("pack-name").textContent=" 님";var button=app.querySelector(".footer .cta");if(button)button.disabled=true;inp.focus();}return;}
  if(a==="open-sheet"){state.sheet=true;stopChat();app.insertAdjacentHTML("beforeend",sheetHtml());return;}
  if(a==="close-sheet"){state.sheet=false;var sheet=app.querySelector(".sheet-overlay");if(sheet)sheet.remove();enterResult();return;}
  if(a==="confirm-results"){state.chatWaiting=false;var target=document.getElementById("chat-prompt");if(target)target.innerHTML='<div class="user-choice"><span>확인할래요</span></div>';stopChat();revealTimer=setTimeout(function(){appendChat(3)},450);return;}
@@ -281,7 +314,7 @@ app.addEventListener("click",function(e){
  if(a==="reset"){stopChat();state=initial();render();return;}
  if(a==="exit-result"){state.page=5;render();return;}
 });
-app.addEventListener("input",function(e){if(e.target.id==="pack-input"){state.name=e.target.value;var shell=document.getElementById("name-shell");if(shell)shell.classList.toggle("has-text",!!state.name);var name=document.getElementById("pack-name");if(name)name.textContent=(state.name||"")+" 님";}});
+app.addEventListener("input",function(e){if(e.target.id==="pack-input"){state.name=e.target.value;var shell=document.getElementById("name-shell");if(shell)shell.classList.toggle("has-text",!!state.name);var name=document.getElementById("pack-name");if(name)name.textContent=(state.name||"")+" 님";var button=app.querySelector(".footer .cta");if(button)button.disabled=!state.name.trim();}});
 prev.addEventListener("click",goPrevious);next.addEventListener("click",goNext);entire.addEventListener("click",showAllChat);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.sheet){state.sheet=false;app.querySelector(".sheet-overlay")?.remove();enterResult();return;}if(e.target.tagName==="INPUT")return;if(e.key==="ArrowLeft")goPrevious();if(e.key==="ArrowRight")goNext();});
 render();
